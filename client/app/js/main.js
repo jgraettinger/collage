@@ -13,10 +13,10 @@ require.config({
   },
   priority: ['angular']
 });
-  
+
 require([
     // Use the Loader Plugin API, so the callback completes only when
-    // the DOM is ready. 
+    // the DOM is ready.
     'domReady!',
     'angular',
     'app'

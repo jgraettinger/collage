@@ -2,6 +2,15 @@
 
   var EPSILON = 0.0001;
 
+  function Solution(cornerOne, cornerTwo, solver) {
+    this.xMin = Math.min(cornerOne[0], cornerTwo[0]);
+    this.xMax = Math.max(cornerOne[0], cornerTwo[0]);
+    this.yMin = Math.min(cornerOne[1], cornerTwo[1]);
+    this.yMax = Math.max(cornerOne[1], cornerTwo[1]);
+    this.solver = solver;
+    this.area = (this.xMax - this.xMin) * (this.yMax - this.yMin);
+  };
+
   function Segment(begin, end) {
     // Determine the plane parameterization of the segment, with a normal
     // rotated 90' to the left. For a polygon given in counter-clockwise
@@ -78,179 +87,12 @@
       }
     }
   }
-  Solver.prototype.findABC = function(canvas, context, A, B, C) {
-    var m = -A.slope * (C.slope - B.slope) / (A.slope - B.slope);
-
-    var system = mat3.create();
-    system[0] = A.vector[1]; // Avy
-    system[3] = -B.vector[1]; // -Bvy
-    system[6] = 0;
-
-    system[1] = 0;
-    system[4] = B.vector[0]; // Bvx
-    system[7] = -C.vector[0]; // -Cvx
-
-    system[2] = A.vector[1] - A.vector[0] * m; // Avy - Avx*m;
-    system[5] = B.vector[0] * m; // Bvx * m
-    system[8] = -C.vector[1]; // -Cvy
-
-    mat3.invert(system, system);
-
-    var input = vec3.create();
-    input[0] = B.begin[1] - A.begin[1]; // Boy - Aoy
-    input[1] = C.begin[0] - B.begin[0]; // Cox - Box
-    input[2] = C.begin[1] - A.begin[1] - B.begin[0] * m + A.begin[0] * m; // Coy - Aoy*m - Box*m + Aox*m
-
-    var output = vec3.create();
-    vec3.transformMat3(output, input, system);
-
-    var p1 = vec3.create();
-    vec3.lerp(p1, A.begin, A.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, B.begin, B.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, C.begin, C.end, output[2]);
-
-    context.strokeStyle = '#FF0000';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
+  Solver.prototype.isUnitBounded = function(p) {
+    return p > -EPSILON && p < 1.0 + EPSILON;
   }
-  Solver.prototype.findABD = function(canvas, context, A, B, D) {
-    var m = -B.slope * (D.slope - A.slope) / (B.slope - A.slope);
-
-    var system = mat3.create();
-    system[0] = A.vector[1]; // Avy
-    system[3] = -B.vector[1]; // -Bvy
-    system[6] = 0;
-
-    system[1] = A.vector[0]; // Avx
-    system[4] = 0
-    system[7] = -D.vector[0]; // -Dvx
-
-    system[2] = m * A.vector[0]; // Avx * m
-    system[5] = B.vector[1] - m * B.vector[0]; // Bvy - Bvx*m
-    system[8] = -D.vector[1]; // -Dvy
-
-    mat3.invert(system, system);
-
-    var input = vec3.create();
-    input[0] = B.begin[1] - A.begin[1]; // Boy - Aoy
-    input[1] = D.begin[0] - A.begin[0]; // Dox - Aox
-    input[2] = D.begin[1] - B.begin[1] - A.begin[0] * m + B.begin[0] * m; // Doy - Boy - Aox*m + Box*m
-
-    var output = vec3.create();
-    vec3.transformMat3(output, input, system);
-
-    var p1 = vec3.create();
-    vec3.lerp(p1, A.begin, A.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, B.begin, B.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, D.begin, D.end, output[2]);
-
-    context.strokeStyle = '#00FF00';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p2[0], canvas.height - p3[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
-  }
-  Solver.prototype.findACD = function(canvas, context, A, C, D) {
-    var m = -C.slope * (A.slope - D.slope) / (C.slope - D.slope);
-    //console.log('findACD ' + m);
-
-    var system = mat3.create();
-    system[0] = A.vector[0]; // Avx
-    system[3] = 0;
-    system[6] = -D.vector[0]; // -Dvx
-
-    system[1] = 0;
-    system[4] = C.vector[1]; // Cvy
-    system[7] = -D.vector[1]; // -Dvy
-
-    system[2] = A.vector[1]; // Avy
-    system[5] = m * C.vector[0] - C.vector[1]; // Cvx*m - Cvy
-    system[8] = -D.vector[0]; // -Dvx
-
-    mat3.invert(system, system);
-
-    var input = vec3.create();
-    input[0] = D.begin[0] - A.begin[0]; // Dox - Aox
-    input[1] = D.begin[1] - C.begin[1]; // Doy - Coy
-    input[2] = C.begin[1] - A.begin[1] - C.begin[0] * m + D.begin[0] * m; // Coy - Aoy - Cox*m + Dox*m
-
-    var output = vec3.create();
-    vec3.transformMat3(output, input, system);
-
-    var p1 = vec3.create();
-    vec3.lerp(p1, A.begin, A.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, C.begin, C.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, D.begin, D.end, output[2]);
-
-    //console.log((p3[1] - p1[1]) / (p2[0] - p1[0]))
-
-    context.strokeStyle = '#000000';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
-  }
-  Solver.prototype.findBCD = function(canvas, context, B, C, D) {
-    var m = -B.slope * (D.slope - C.slope) / (B.slope - C.slope);
-
-    var system = mat3.create();
-    system[0] = -B.vector[0]; // -Bvx
-    system[3] = C.vector[0]; // Cvx
-    system[6] = 0;
-
-    system[1] = 0;
-    system[4] = C.vector[1] // Cvy
-    system[7] = -D.vector[1]; // -Dvy
-
-    system[2] = B.vector[1]; // Bvy
-    system[5] = -C.vector[0] * m; // -Cvx*m
-    system[8] = D.vector[0] * m - D.vector[1]; // Dvx*m - Dvy
-
-    mat3.invert(system, system);
-
-    var input = vec3.create();
-    input[0] = B.begin[0] - C.begin[0]; // Box - Cox
-    input[1] = D.begin[1] - C.begin[1]; // Doy - Coy
-    input[2] = D.begin[1] - B.begin[1] - D.begin[0] * m + C.begin[0] * m; // Doy - Boy - Dox*m + Cox*m
-
-    var output = vec3.create();
-    vec3.transformMat3(output, input, system);
-
-    var p1 = vec3.create();
-    vec3.lerp(p1, B.begin, B.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, C.begin, C.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, D.begin, D.end, output[2]);
-
-    context.strokeStyle = '#0000FF';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p3[0], canvas.height - p1[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
-  }
-  Solver.prototype.findABCD = function(canvas, context, A, B, C, D) {
-
+  Solver.prototype.find4L = function(A, B, C, D, solutions) {
+    // Create a system which fixes A.y = B.y,
+    // B.x = C.x, C.y = D.y, and D.x = A.x
     var system = mat4.create();
     system[0] = A.vector[1]; // Avy
     system[4] = -B.vector[1]; // -Bvy
@@ -271,7 +113,6 @@
     system[7] = 0;
     system[11] = 0;
     system[15] = D.vector[0]; // Dvx
-
     mat4.invert(system, system);
 
     var input = vec4.create();
@@ -280,28 +121,20 @@
     input[2] = D.begin[1] - C.begin[1]; // Doy - Coy
     input[3] = A.begin[0] - D.begin[0]; // Aox - Dox
 
-    var output = vec4.create();
-    vec4.transformMat4(output, input, system);
+    var parameters = vec4.create();
+    vec4.transformMat4(parameters, input, system);
 
-    var p1 = vec3.create();
-    vec3.lerp(p1, A.begin, A.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, B.begin, B.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, C.begin, C.end, output[2]);
-    var p4 = vec3.create();
-    vec3.lerp(p4, D.begin, D.end, output[3]);
-
-    context.strokeStyle = '#00FFFF';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p4[0], canvas.height - p4[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
+    // Require parameterizations to fall in [0, 1].
+    if (!_.all(parameters, this.isUnitBounded)) {
+      return;
+    }
+    var v1 = vec2.create(), v2 = vec2.create();
+    vec2.lerp(v1, A.begin, A.end, parameters[0]);
+    vec2.lerp(v2, C.begin, C.end, parameters[2]);
+    solutions.push(new Solution(v1, v2, '4L'));
   }
-  Solver.prototype.findV2L = function(canvas, context, v, l1, l2) {
+  Solver.prototype.findV2L = function(v, l1, l2, solutions) {
+    // Identify which line is more-aligned with the X-axis, and which with Y.
     var X, Y;
     if (Math.abs(l1.slope) < Math.abs(l2.slope)) {
       X = l1;
@@ -310,50 +143,24 @@
       X = l2;
       Y = l1;
     }
-
     // Project from V to X, and from X to Y.
     var s1tx = (v[0] - X.begin[0]) / X.vector[0];
     var s1ty = (X.vector[1] * s1tx + X.begin[1] - Y.begin[1]) / Y.vector[1];
-
     // Project from V to Y, and from Y to X.
     var s2ty = (v[1] - Y.begin[1]) / Y.vector[1];
     var s2tx = (Y.vector[0] * s2ty + Y.begin[0] - X.begin[0]) / X.vector[0];
 
-    var s1 = vec3.create();
-    vec3.lerp(s1, Y.begin, Y.end, s1ty);
-
-    var s2 = vec3.create();
-    vec3.lerp(s2, X.begin, X.end, s2tx);
-
-    var tx, ty;
-    if (X.inside(s1) && Y.inside(s1)) {
-      tx = s1tx;
-      ty = s1ty;
-
-      context.strokeStyle = '#000000';
-      context.beginPath();
-      context.moveTo(v[0], canvas.height - v[1]);
-      context.lineTo(s1[0], canvas.height - v[1]);
-      context.lineTo(s1[0], canvas.height - s1[1]);
-      context.lineTo(v[0], canvas.height - s1[1]);
-      context.lineTo(v[0], canvas.height - v[1]);
-      context.stroke();
-
-    } else if(X.inside(s2) && Y.inside(s2)) {
-      tx = s2tx;
-      ty = s2ty;
-
-      context.strokeStyle = '#000000';
-      context.beginPath();
-      context.moveTo(v[0], canvas.height - v[1]);
-      context.lineTo(s2[0], canvas.height - v[1]);
-      context.lineTo(s2[0], canvas.height - s2[1]);
-      context.lineTo(v[0], canvas.height - s2[1]);
-      context.lineTo(v[0], canvas.height - v[1]);
-      context.stroke();
+    var v2 = vec2.create();
+    if (this.isUnitBounded(s1tx) && this.isUnitBounded(s1ty)) {
+      vec2.lerp(v2, Y.begin, Y.end, s1ty);
+      solutions.push(new Solution(v, v2, 'V2Lxy'));
+    }
+    if (this.isUnitBounded(s2ty) && this.isUnitBounded(s2tx)) {
+      vec2.lerp(v2, X.begin, X.end, s2tx);
+      solutions.push(new Solution(v, v2, 'V2Lyx'));
     }
   }
-  Solver.prototype.find3L = function(canvas, context, A, B, C, test) {
+  Solver.prototype.find3L = function(A, B, C, solutions) {
     // If B has negative slope, we want to project along X to A rather than Y.
     // The linear system used here projects along Y to A, so flip them.
     if (B.slope < 0) {
@@ -361,7 +168,8 @@
       A = C;
       C = t;
     }
-
+    // Compute the slope of the largest inscribed rectangle,
+    // which is a function of the slopes of A, B, and C.
     var mMax, mMin;
     if (Math.abs(A.slope) > Math.abs(C.slope)) {
       mMax = A.slope;
@@ -370,9 +178,10 @@
       mMax = C.slope;
       mMin = A.slope;
     }
-
     var m = -mMax * (mMin - B.slope) / (mMax - B.slope);
 
+    // Create a system which fixes A.y = B.y, B.x = C.x,
+    // and C.y = A.y + m*(B.x-A.x)
     var system = mat3.create();
     system[0] = A.vector[1]; // Avy
     system[3] = -B.vector[1]; // -Bvy
@@ -385,7 +194,6 @@
     system[2] = A.vector[1] - A.vector[0] * m; // Avy - Avx*m;
     system[5] = B.vector[0] * m; // Bvx * m
     system[8] = -C.vector[1]; // -Cvy
-
     mat3.invert(system, system);
 
     var input = vec3.create();
@@ -393,55 +201,32 @@
     input[1] = C.begin[0] - B.begin[0]; // Cox - Box
     input[2] = C.begin[1] - A.begin[1] - B.begin[0] * m + A.begin[0] * m; // Coy - Aoy*m - Box*m + Aox*m
 
-    var output = vec3.create();
-    vec3.transformMat3(output, input, system);
+    var parameters = vec3.create();
+    vec3.transformMat3(parameters, input, system);
 
-    var p1 = vec3.create();
-    vec3.lerp(p1, A.begin, A.end, output[0]);
-    var p2 = vec3.create();
-    vec3.lerp(p2, B.begin, B.end, output[1]);
-    var p3 = vec3.create();
-    vec3.lerp(p3, C.begin, C.end, output[2]);
-    var p4 = vec3.create();
-    p4[0] = p1[0];
-    p4[1] = p3[1];
-
-    if (test !== undefined) {
-      if (!test.inside(p1) || !test.inside(p2) || !test.inside(p3) || !test.inside(p4)) {
-        return;
-      }
+    // Require parameterizations to fall in [0, 1].
+    if (!_.all(parameters, this.isUnitBounded)) {
+      return;
     }
-
-    context.strokeStyle = '#FF0000';
-    context.beginPath();
-    context.moveTo(p1[0], canvas.height - p1[1]);
-    context.lineTo(p2[0], canvas.height - p2[1]);
-    context.lineTo(p3[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p3[1]);
-    context.lineTo(p1[0], canvas.height - p1[1]);
-    context.stroke();
-
-    //console.log('area 3L: ' + (p1[0] - p3[0]) * (p1[1] - p3[1]))
+    // We're not sure which of A, C is lower-left vs upper-right.
+    var v1 = vec2.create(), v2 = vec2.create();
+    vec2.lerp(v1, A.begin, A.end, parameters[0]);
+    vec2.lerp(v2, C.begin, C.end, parameters[2]);
+    solutions.push(new Solution(v1, v2, '3L'));
   }
-  Solver.prototype.findV1L = function(canvas, context, v, l) {
+  Solver.prototype.findV1L = function(v, A, solutions) {
+    // Identify the parameterization of the projection of V onto A.
+    var v2 = vec2.create();
+    vec2.subtract(v2, v, A.begin);
+    var t = vec2.dot(v2, A.vector) / vec2.squaredLength(A.vector);
 
-    var tmp = vec2.create();
-    vec2.subtract(tmp, v, l.begin);
-    vec2.scale(tmp, l.normal, vec2.dot(tmp, l.normal));
-
-    var p4 = vec2.create();
-    vec2.subtract(p4, v, tmp);
-
-    context.strokeStyle = '#555555';
-    context.beginPath();
-    context.moveTo(v[0], canvas.height - v[1]);
-    context.lineTo(p4[0], canvas.height - v[1]);
-    context.lineTo(p4[0], canvas.height - p4[1]);
-    context.lineTo(v[0], canvas.height - p4[1]);
-    context.lineTo(v[0], canvas.height - v[1]);
-    context.stroke();
-
-    //console.log('area V1L: ' + (v[0] - p4[0]) * (v[1] - p4[1]))
+    if (this.isUnitBounded(t)) {
+      vec2.lerp(v2, A.begin, A.end, t);
+      solutions.push(new Solution(v, v2, 'V1L'));
+    }
+  }
+  Solver.prototype.find2V = function(v1, v2, solutions) {
+    solutions.push(new Solution(v1, v2, '2V'));
   }
 
 function draw(canvas, context, t) {
@@ -472,18 +257,10 @@ function draw(canvas, context, t) {
   for (var i = 0; i != corners.length; ++i) {
     var v = corners[i];
     vec4.transformMat4(v, v, mvMatrix);
-    //console.log('view coordinates: ' + v[0] + ' ' + v[1] + ' ' + v[2] + ' ' + v[3]);
-
     vec4.transformMat4(v, v, pMatrix);
-    //console.log('clip coordinates: ' + v[0] + ' ' + v[1] + ' ' + v[2] + ' ' + v[3]);
-
     vec4.scale(v, v, -1.0 / v[3]);
-    //console.log('NDC: ' + v[0] + ' ' + v[1] + ' ' + v[2] + ' ' + v[3]);
-
-    //console.log(canvas.width + ' ' + canvas.height);
     v[0] = (0.5 + v[0] / 2.0) * canvas.width;
     v[1] = (0.5 + v[1] / 2.0) * canvas.height;
-    //console.log('after viewport: ' + v[0] + ' ' + v[1]);
   }
 
   var s = new Solver(corners);
@@ -497,7 +274,6 @@ function draw(canvas, context, t) {
     context.closePath();
     context.stroke();
   }
-
   context.strokeStyle = '#00FF00';
   for (var i = 0; i != s.B.length; ++i) {
     var B = s.B[i];
@@ -507,7 +283,6 @@ function draw(canvas, context, t) {
     context.closePath();
     context.stroke();
   }
-
   context.strokeStyle = '#0000FF';
   for (var i = 0; i != s.C.length; ++i) {
     var C = s.C[i];
@@ -517,7 +292,6 @@ function draw(canvas, context, t) {
     context.closePath();
     context.stroke();
   }
-
   context.strokeStyle = '#FF00FF';
   for (var i = 0; i != s.D.length; ++i) {
     var D = s.D[i];
@@ -527,6 +301,8 @@ function draw(canvas, context, t) {
     context.closePath();
     context.stroke();
   }
+
+  var solutions = [];
 
   var midpoint = function(chain) {
     if (chain[0].end === chain[1].begin) {
@@ -540,7 +316,7 @@ function draw(canvas, context, t) {
   if (s.A.length == 2) {
     var v = midpoint(s.A);
     for (var c = 0; c != s.C.length; ++c) {
-      s.findV1L(canvas, context, v, s.C[c]);
+      s.findV1L(v, s.C[c], solutions);
     }
     if (s.C.length == 2) {
       // 2-point solution.
@@ -550,7 +326,7 @@ function draw(canvas, context, t) {
   if (s.B.length == 2) {
     var v = midpoint(s.B);
     for (var d = 0; d != s.D.length; ++d) {
-      s.findV1L(canvas, context, v, s.D[d]);
+      s.findV1L(v, s.D[d], solutions);
     }
     if (s.D.length == 2) {
       // 2-point solution
@@ -561,17 +337,16 @@ function draw(canvas, context, t) {
   if (s.C.length == 2) {
     var v = midpoint(s.C);
     for (var a = 0; a != s.A.length; ++a) {
-      s.findV1L(canvas, context, v, s.A[a]);
+      s.findV1L(v, s.A[a], solutions);
     }
   }
   // Solutions at chain D.
   if (s.D.length == 2) {
     var v = midpoint(s.D);
     for (var b = 0; b != s.B.length; ++b) {
-      s.findV1L(canvas, context, v, s.B[b]);
+      s.findV1L(v, s.B[b], solutions);
     }
   }
-
 
 
   var chains = [s.A, s.B, s.C, s.D];
@@ -592,14 +367,7 @@ function draw(canvas, context, t) {
       } else {
         v2 = chains[1][1].end;
       }
-      context.strokeStyle = '#FF00FF';
-      context.beginPath();
-      context.moveTo(v1[0], canvas.height - v1[1]);
-      context.lineTo(v1[0], canvas.height - v2[1]);
-      context.lineTo(v2[0], canvas.height - v2[1]);
-      context.lineTo(v2[0], canvas.height - v1[1]);
-      context.lineTo(v1[0], canvas.height - v1[1]);
-      context.stroke();
+      s.find2V(v1, v2, solutions);
 
     } else {
       var v;
@@ -608,126 +376,47 @@ function draw(canvas, context, t) {
       } else {
         v = chains[0][1].end;
       }
-      s.findV2L(canvas, context, v, chains[1][0], chains[2][0]);
+      s.findV2L(v, chains[1][0], chains[2][0], solutions);
     }
   }
   {
     for (var a = 0; a != s.A.length; ++a) {
       for (var b = 0; b != s.B.length; ++b) {
         for (var c = 0; c != s.C.length; ++c) {
-          s.find3L(canvas, context, s.A[a], s.B[b], s.C[c], s.D[0]);
+          s.find3L(s.A[a], s.B[b], s.C[c], solutions);
           for (var d = 0; d != s.D.length; ++d) {
-            s.findABCD(canvas, context, s.A[0], s.B[0], s.C[0], s.D[0])
+            s.find4L(s.A[0], s.B[0], s.C[0], s.D[0], solutions);
           }
         }
         for (var d = 0; d != s.D.length; ++d) {
-          s.find3L(canvas, context, s.D[d], s.A[a], s.B[b], s.C[0]);
+          s.find3L(s.D[d], s.A[a], s.B[b], solutions);
         }
       }
       for (var c = 0; c != s.C.length; ++c) {
         for (var d = 0; d != s.D.length; ++d) {
-          //console.log('RAN');
-          s.find3L(canvas, context, s.C[c], s.D[d], s.A[a], s.B[0]);
+          s.find3L(s.C[c], s.D[d], s.A[a], solutions);
         }
       }
     }
     for (var b = 0; b != s.B.length; ++b) {
       for (var c = 0; c != s.C.length; ++c) {
         for (var d = 0; d != s.D.length; ++d) {
-          s.find3L(canvas, context, s.B[b], s.C[c], s.D[d], s.A[0]);
+          s.find3L(s.B[b], s.C[c], s.D[d], solutions);
         }
       }
     }
   }
-
-
-  /*
-  for (var a = 0; a != s.A.length; ++a) {
-    for (var b = 0; b != s.B.length; ++b) {
-      for (var c = 0; c != s.C.length; ++c) {
-        //s.findABC(canvas, context, s.A[a], s.B[b], s.C[c]);
-        //for (var d = 0; d != s.D.length; ++d) {
-        //  s.findABCD(canvas, context, s.A[0], s.B[0], s.C[0], s.D[0])
-        //}
-      }
-      for (var d = 0; d != s.D.length; ++d) {
-        //s.findABD(canvas, context, s.A[a], s.B[b], s.D[d]);
-      }
-    }
-    for (var c = 0; c != s.C.length; ++c) {
-      for (var d = 0; d != s.D.length; ++d) {
-        s.findACD(canvas, context, s.A[a], s.C[c], s.D[d]);
-      }
-    }
-  }
-  for (var b = 0; b != s.B.length; ++b) {
-    for (var c = 0; c != s.C.length; ++c) {
-      for (var d = 0; d != s.D.length; ++d) {
-        //s.findBCD(canvas, context, s.B[b], s.C[c], s.D[d]);
-      }
-    }
-  }
- */
-
-
-  /*
-  console.log('A.begin ' + A.begin[0] + ' ' + A.begin[1]);
-  console.log('A.end ' + A.end[0] + ' ' + A.end[1]);
-  console.log('A.vector ' + A.vector[0] + ' ' + A.vector[1]);
-
-  var m = -A.slope * (C.slope - B.slope) / (A.slope - B.slope);
-  console.log('mA ' + A.slope + ' mB ' + B.slope + ' mC ' + C.slope + ' mD ' + D.slope);
-  console.log('m: ' + m);
-
-  var system = mat3.create();
-  system[0] = A.vector[1]; // Avy
-  system[3] = -B.vector[1]; // -Bvy
-  system[6] = 0;
-
-  system[1] = 0;
-  system[4] = B.vector[0]; // Bvx
-  system[7] = -C.vector[0]; // -Cvx
-
-  system[2] = A.vector[1] - A.vector[0] * m; // Avy - Avx * m;
-  system[5] = B.vector[0] * m; // Bvx * m
-  system[8] = -C.vector[1]; // -Cvy
-
-  mat3.invert(system, system);
-
-  var input = vec3.create();
-  input[0] = B.begin[1] - A.begin[1]; // Boy - Aoy
-  input[1] = C.begin[0] - B.begin[0]; // Cox - Box
-  input[2] = C.begin[1] - A.begin[1] - B.begin[0] * m + A.begin[0] * m; // Coy - Box * m + Aox * m + Aoy
-
-  var output = vec3.create();
-  vec3.transformMat3(output, input, system);
-  console.log(output);
-
-  var p1 = vec3.create();
-  vec3.lerp(p1, A.begin, A.end, output[0]);
-  var p2 = vec3.create();
-  vec3.lerp(p2, B.begin, B.end, output[1]);
-  var p3 = vec3.create();
-  vec3.lerp(p3, C.begin, C.end, output[2]);
-
-  console.log(p1);
-  console.log(p2);
-  console.log(p3);
-
-  console.log('Area: ' + Math.abs((p2[0] - p1[0]) * (p3[1] - p2[1])));
-
-
-  context.strokeStyle = '#000000';
-  context.beginPath();
-  context.moveTo(p1[0], canvas.height - p1[1]);
-  context.lineTo(p2[0], canvas.height - p2[1]);
-  context.lineTo(p3[0], canvas.height - p3[1]);
-  context.lineTo(p1[0], canvas.height - p3[1]);
-  context.lineTo(p1[0], canvas.height - p1[1]);
-  context.stroke();
-
-  //console.log('ta ' + output[0] + ' tb ' + output[1] + ' tc ' + output[2]);
-  */
+  _.each(solutions, function(s) {
+    //console.log(s);
+    context.strokeStyle = '#00FFFF';
+    context.beginPath();
+    context.moveTo(s.xMin, canvas.height - s.yMin);
+    context.lineTo(s.xMax, canvas.height - s.yMin);
+    context.lineTo(s.xMax, canvas.height - s.yMax);
+    context.lineTo(s.xMin, canvas.height - s.yMax);
+    context.lineTo(s.xMin, canvas.height - s.yMin);
+    context.stroke();
+  });
 }
 
 function main() {
@@ -740,7 +429,7 @@ function main() {
   var drawLoop;
   drawLoop = function() {
     var time = new Date().getTime() / 20000;
-    //time = 68567735.00075 ;
+    //time = 68580849.5425 ;
 
     draw(canvas, context, time);
     window.setTimeout(drawLoop, 10);

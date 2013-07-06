@@ -19,6 +19,7 @@ files = [
   {pattern: 'app/webgl/**/*.js', included: false},
   {pattern: 'app/shader/**/*', included: false},
   {pattern: 'app/layout/**/*', included: false},
+  {pattern: 'app/largest_rectangle/**/*', included: false},
 
   {pattern: 'test/**/*.js', included: false},
   {pattern: 'test/fixtures/**/*', included: false},
@@ -56,7 +57,7 @@ autoWatch = true;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['Chrome'];
+browsers = []; //'Chrome'];
 
 // If browser does not capture in given timeout [ms], kill it
 captureTimeout = 60000;

@@ -11,6 +11,7 @@ requirejs.config({
     webgl: '/base/app/webgl',
     shader: '/base/app/shader',
     layout: '/base/app/layout',
+	largest_rectangle: '/base/app/largest_rectangle',
 
     collageConstants: '/base/test/collage-constants',
 

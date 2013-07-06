@@ -1,4 +1,6 @@
-define([], function () {
+define([
+    'largest_rectangle/Segment'
+], function (Segment) {
   'use strict';
 
   function Model(vertices) {
@@ -67,4 +69,5 @@ define([], function () {
       check([solution.xMax, solution.yMax], this.upperRightChain) &&
       check([solution.xMin, solution.yMax], this.upperLeftChain);
   };
+  return Model;
 });

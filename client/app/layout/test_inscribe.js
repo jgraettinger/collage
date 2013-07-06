@@ -340,7 +340,7 @@ function draw(canvas, context, timeStamp) {
   quat.rotateX(rotate, rotate, timeStamp * 0.4);
   quat.rotateY(rotate, rotate, timeStamp * 0.5);
   quat.rotateZ(rotate, rotate, timeStamp * 0.6);
-  quat.rotateZ(rotate, rotate, 0.05);
+  //quat.rotateZ(rotate, rotate, 0.05);
   var translate = vec3.fromValues(0, 0, -10);
 
   var mvMatrix = mat4.create();

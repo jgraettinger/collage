@@ -24,7 +24,7 @@ define([
     this.b = -1 * (begin[0] * normal[0] + begin[1] * normal[1]);
 
     // Determine the (order-invariant) slope of the line this segment defines.
-    if (begin[0] <= end[0]) {
+    if (begin[0] < end[0] || (begin[0] == end[0] && end[1] > begin[1])) {
       this.slope = (end[1] - begin[1]) / (end[0] - begin[0]);
     } else {
       this.slope = (begin[1] - end[1]) / (begin[0] - end[0]);

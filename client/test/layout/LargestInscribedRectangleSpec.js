@@ -1,10 +1,11 @@
 'use strict';
 
 define([
-    'gl-matrix',
-    'layout/LargestInscribedRectangle',
-  ], function(glMatrix, Solver) {
+//    'gl-matrix',
+//    'layout/LargestInscribedRectangle',
+  ], function() {
 
+/*
   describe('Solver', function() {
     it('accepts a convex polygon', function() {
       var solver = new Solver();
@@ -33,5 +34,6 @@ define([
     });
 
   });
+*/
 });
 

@@ -12,7 +12,7 @@ define([
         new Solution([2, -1], [-1, 2]),
         new Solution([-1, 2], [2, -1]),
       ];
-      _.each(solutions, function (s) {
+      _.each(solutions, function (solution) {
         expect(solution.xMin).toEqual(-1);
         expect(solution.yMin).toEqual(-1);
         expect(solution.xMax).toEqual(2);

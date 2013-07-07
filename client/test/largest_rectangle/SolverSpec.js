@@ -20,7 +20,21 @@ define([
         model.upperRightChain[0], model.upperLeftChain[0]);
 
       expect(solver.solutions).toEqual(
-      [new Solution([-0.5, -0.5], [0.5, 0.5])]);
+      [new Solution([-0.5, -0.5], [0.5, 0.5], '4L')]);
+    });
+    iit('find a solution touching 3 lines', function () {
+      var model = new Model([
+        [-1.5, 2],
+        [-1, 0],
+        [1, 0],
+        [1.5, 2],
+       ])
+      var solver = new Solver();
+      solver.find3L(model.lowerLeftChain[0], model.lowerRightChain[0],
+        model.upperRightChain[0]);
+
+      expect(solver.solutions).toEqual(
+      [new Solution([-0.5, -0.5], [0.5, 0.5], '3L')]);
     });
   });
 });

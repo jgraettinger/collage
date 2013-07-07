@@ -75,22 +75,27 @@ define([
       // TODO(johng): Come up with a fixture to fill this out.
     });
     it('supports boundary testing of candiate solutions', function () {
-      var model = new Model([[-1, 0], [0, 1], [1, 0], [0, -1]]);
+      var model = new Model([
+        [-1, 0],
+        [0, 1],
+        [1, 0],
+        [0, -1],
+      ]);
       // A trivially contained solution passes.
       expect(model.boundaryTest(
-          new Solution([-0.1, -0.1], [0.1, 0.1]))).toBeTruthy();
+        new Solution([-0.1, -0.1], [0.1, 0.1]))).toBeTruthy();
       // A solution exactly inscribed within the model passes.
       expect(model.boundaryTest(
-          new Solution([-0.5, -0.5], [0.5, 0.5]))).toBeTruthy();
+        new Solution([-0.5, -0.5], [0.5, 0.5]))).toBeTruthy();
       // Any further violation of the exactly inscribed solution fails.
       expect(model.boundaryTest(
-          new Solution([-0.6, -0.5], [0.5, 0.5]))).toBeFalsy();
+        new Solution([-0.6, -0.5], [0.5, 0.5]))).toBeFalsy();
       expect(model.boundaryTest(
-          new Solution([-0.5, -0.6], [0.5, 0.5]))).toBeFalsy();
+        new Solution([-0.5, -0.6], [0.5, 0.5]))).toBeFalsy();
       expect(model.boundaryTest(
-          new Solution([-0.5, -0.5], [0.6, 0.5]))).toBeFalsy();
+        new Solution([-0.5, -0.5], [0.6, 0.5]))).toBeFalsy();
       expect(model.boundaryTest(
-          new Solution([-0.5, -0.5], [0.5, 0.6]))).toBeFalsy();
+        new Solution([-0.5, -0.5], [0.5, 0.6]))).toBeFalsy();
     });
   });
 });

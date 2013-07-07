@@ -11,7 +11,7 @@ requirejs.config({
     webgl: '/base/app/webgl',
     shader: '/base/app/shader',
     layout: '/base/app/layout',
-	largest_rectangle: '/base/app/largest_rectangle',
+    largest_rectangle: '/base/app/largest_rectangle',
 
     collageConstants: '/base/test/collage-constants',
 
@@ -20,14 +20,22 @@ requirejs.config({
     text: '/base/app/js/lib/require/text',
     'gl-matrix': '/base/app/js/lib/gl-matrix',
     underscore: '/base/app/js/lib/underscore-min',
+    numeric: '/base/app/js/lib/numeric-1.2.6',
   },
   shim: {
-    'angular': {'exports': 'angular'},
+    'angular': {
+      'exports': 'angular'
+    },
     'angularMocks': {
       deps: ['angular'],
       'exports': 'angular.mock'
     },
-    'underscore': {'exports': '_'},
+    'underscore': {
+      'exports': '_'
+    },
+    'numeric': {
+      'exports': 'numeric',
+    },
   },
   priority: ['angular'],
 

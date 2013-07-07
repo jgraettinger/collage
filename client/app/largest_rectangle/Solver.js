@@ -1,12 +1,33 @@
 define([
     'gl-matrix',
+    'numeric',
     'underscore',
-], function (glMatrix, _) {
+    'largest_rectangle/Solution',
+], function (glMatrix, numeric, _, Solution) {
   'use strict';
 
   var mat4 = glMatrix.mat4,
+    vec2 = glMatrix.vec2,
     vec4 = glMatrix.vec4,
-    EPSILON = 0.0001;
+    EPSILON = 1e-10;
+
+  function generalizedInverse(system) {
+    var svd = numeric.svd(system),
+        tmp = numeric.transpose(svd.U),
+        cutoff = svd.S[0] * EPSILON;
+    for (var i = 0; i != svd.S.length; ++i) {
+      var s = 0;
+      if (svd.S[i] > cutoff) {
+       s = 1.0 / svd.S[i];
+      } else {
+        s = 0;
+      }
+      for (var j = 0; j != tmp[i].length; ++j) {
+        tmp[i][j] *= s;
+      }
+    }
+    return numeric.dot(svd.V, tmp);
+  }
 
   function Solver() {
     this.solutions = [];
@@ -26,41 +47,23 @@ define([
     // left and right segment points are each other's projection along
     // the X axis, and upper and lower segments are each other's projection
     // along the Y axis.
-    var system = mat4.create();
-    // Fix ll.y = lr.y
-    system[0] = ll.vector[1];
-    system[4] = -lr.vector[1];
-    system[8] = 0;
-    system[12] = 0;
-
-    // Fix lr.x = ur.x
-    system[1] = 0;
-    system[5] = lr.vector[0];
-    system[9] = -ur.vector[0];
-    system[13] = 0;
-
-    // Fix ur.y = ul.y
-    system[2] = 0;
-    system[6] = 0;
-    system[10] = ur.vector[1];
-    system[14] = -ul.vector[1];
-
-    // Fix ul.x = ll.x
-    system[3] = -ll.vector[0];
-    system[7] = 0;
-    system[11] = 0;
-    system[15] = ul.vector[0];
-    mat4.invert(system, system);
-
-    var offsets = vec4.create();
-    offsets[0] = lr.begin[1] - ll.begin[1];
-    offsets[1] = ur.begin[0] - lr.begin[0];
-    offsets[2] = ul.begin[1] - ur.begin[1];
-    offsets[3] = ll.begin[0] - ul.begin[0];
-    console.log(offsets);
-
-    var parameters = vec4.create();
-    vec4.transformMat4(parameters, offsets, system);
+    var system = [
+      // Fix ll.y = lr.y
+      [ll.vector[1], -lr.vector[1], 0, 0],
+      // Fix lr.x = ur.x
+      [0, lr.vector[0], -ur.vector[0], 0],
+      // Fix ur.y = ul.y
+      [0, 0, ur.vector[1], -ul.vector[1]],
+      // Fix ul.x = ll.x
+      [-ll.vector[0], 0, 0, ul.vector[0]],
+    ];
+    var offsets = [
+      lr.begin[1] - ll.begin[1],
+      ur.begin[0] - lr.begin[0],
+      ul.begin[1] - ur.begin[1],
+      ll.begin[0] - ul.begin[0],
+    ];
+    var parameters = numeric.dot(generalizedInverse(system), offsets);
 
     // Require parameterizations to fall in [0, 1].
     if (!_.all(parameters, this.isUnitBounded)) {

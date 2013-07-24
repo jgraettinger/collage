@@ -18,6 +18,13 @@ define([
       compareVectors(coord[2], [0.5, -0.5, 0, 1]);
       compareVectors(coord[3], [-0.5, -0.5, 0, 1]);
     });
+    it('supports resizing', function () {
+      var coord = Transform.basic().resize(2, 4).localCoordinates();
+      compareVectors(coord[0], [-1, 2, 0, 1]);
+      compareVectors(coord[1], [1, 2, 0, 1]);
+      compareVectors(coord[2], [1, -2, 0, 1]);
+      compareVectors(coord[3], [-1, -2, 0, 1]);
+    });
     it('basic centers rectangle in the view volume', function () {
       var coord = Transform.basic().viewCoordinates();
       compareVectors(coord[0], [-0.5, 0.5, -5, 1]);

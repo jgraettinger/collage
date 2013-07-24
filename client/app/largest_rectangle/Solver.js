@@ -2,23 +2,26 @@ define([
     'gl-matrix',
     'numeric',
     'underscore',
+    'largest_rectangle/Constants',
     'largest_rectangle/Solution',
-], function (glMatrix, numeric, _, Solution) {
+], function (glMatrix, numeric, _, Constants, Solution) {
   'use strict';
 
-  var mat4 = glMatrix.mat4,
+  var mat2 = glMatrix.mat2,
+    mat3 = glMatrix.mat3,
+    mat4 = glMatrix.mat4,
     vec2 = glMatrix.vec2,
-    vec4 = glMatrix.vec4,
-    EPSILON = 1e-10;
+    vec3 = glMatrix.vec3,
+    vec4 = glMatrix.vec4;
 
   function generalizedInverse(system) {
     var svd = numeric.svd(system),
-        tmp = numeric.transpose(svd.U),
-        cutoff = svd.S[0] * EPSILON;
+      tmp = numeric.transpose(svd.U),
+      cutoff = svd.S[0] * Constants.EPSILON;
     for (var i = 0; i != svd.S.length; ++i) {
       var s = 0;
       if (svd.S[i] > cutoff) {
-       s = 1.0 / svd.S[i];
+        s = 1.0 / svd.S[i];
       } else {
         s = 0;
       }
@@ -33,7 +36,7 @@ define([
     this.solutions = [];
   }
   Solver.prototype.isUnitBounded = function (p) {
-    return p > -EPSILON && p < 1.0 + EPSILON;
+    return p > -Constants.EPSILON && p < 1.0 + Constants.EPSILON;
   };
   /** Attempts to find a solution with corners on four line segments.
    *
@@ -69,8 +72,8 @@ define([
     if (!_.all(parameters, this.isUnitBounded)) {
       return;
     }
-    var v1 = vec2.create(),
-      v2 = vec2.create();
+    var v1 = [0, 0],
+      v2 = [0, 0];
     vec2.lerp(v1, ll.begin, ll.end, parameters[0]);
     vec2.lerp(v2, ur.begin, ur.end, parameters[2]);
     this.solutions.push(new Solution(v1, v2, '4L'));
@@ -110,40 +113,31 @@ define([
     // Create a system which finds a point on l2, and projects it along the
     // Y-axis to l1 and X-axis to l3, such that the line formed by the l1, l3
     // projections form a solution with slope targetSlope.
-    var system = mat3.create();
-    // Fix l1.y = l2.y
-    system[0] = l1.vector[1];
-    system[3] = -l2.vector[1];
-    system[6] = 0;
-
-    // Fix l2.x = l3.x
-    system[1] = 0;
-    system[4] = l2.vector[0];
-    system[7] = -l3.vector[0];
-
-    // Fix l3.y = l1.y + slope * (l2.x - l1.x)
-    system[2] = l1.vector[1] - l1.vector[0] * targetSlope;
-    system[5] = l2.vector[0] * targetSlope;
-    system[8] = -l3.vector[1];
-    mat3.invert(system, system);
-
-    var offsets = vec3.create();
-    offsets[0] = l2.begin[1] - l1.begin[1];
-    offsets[1] = l3.begin[0] - l2.begin[0];
-    offsets[2] = l3.begin[1] - l1.begin[1] - l2.begin[0] * targetSlope + l1
-      .begin[
-      0] * targetSlope;
-
-    var parameters = vec3.create();
-    vec3.transformMat3(parameters, offsets, system);
+    var system = [
+      // Fix l1.y = l2.y
+      [l1.vector[1], -l2.vector[1], 0],
+      // Fix l2.x = l3.x
+      [0, l2.vector[0], -l3.vector[0]],
+      // Fix l3.y = l1.y + slope * (l2.x - l1.x)
+      [l1.vector[1] - l1.vector[0] * targetSlope,
+        l2.vector[0] * targetSlope, -l3.vector[1]
+      ],
+    ],
+      offsets = [
+        l2.begin[1] - l1.begin[1],
+        l3.begin[0] - l2.begin[0],
+        l3.begin[1] - l1.begin[1] - l2.begin[0] * targetSlope + l1.begin[0] *
+          targetSlope,
+      ];
+    var parameters = numeric.dot(generalizedInverse(system), offsets);
 
     // Require parameterizations to fall in [0, 1].
     if (!_.all(parameters, this.isUnitBounded)) {
       return;
     }
     // Parameterzations on l1 and l3 describe opposite corners of the solution.
-    var v1 = vec2.create(),
-      v2 = vec2.create();
+    var v1 = [0, 0],
+      v2 = [0, 0];
     vec2.lerp(v1, l1.begin, l1.end, parameters[0]);
     vec2.lerp(v2, l3.begin, l3.end, parameters[2]);
     this.solutions.push(new Solution(v1, v2, '3L'));
@@ -169,27 +163,30 @@ define([
     }
     // Project from v to lx, and from lx to ly.
     var s1tx = (v[0] - lx.begin[0]) / lx.vector[0];
-    var s1ty = (lx.vector[1] * s1tx + lx.begin[1] - ly.begin[1]) / ly.vector[
-      1];
+    var s1ty = (lx.vector[1] * s1tx + lx.begin[1] - ly.begin[1]) /
+      ly.vector[1];
     // Project from v to ly, and from ly to lx.
     var s2ty = (v[1] - ly.begin[1]) / ly.vector[1];
-    var s2tx = (ly.vector[0] * s2ty + ly.begin[0] - lx.begin[0]) / lx.vector[
-      0];
+    var s2tx = (ly.vector[0] * s2ty + ly.begin[0] - lx.begin[0]) /
+      lx.vector[0];
 
-    var v2 = vec2.create();
+    var v2 = [0, 0];
+    // Solution projected from v to lx to ly.
     if (this.isUnitBounded(s1tx) && this.isUnitBounded(s1ty)) {
       vec2.lerp(v2, ly.begin, ly.end, s1ty);
-      this.solutions.push(new Solution(v, v2, 'V2Lxy'));
+      this.solutions.push(new Solution(v, v2, 'V2Lvxy'));
     }
+    // Solution projected from v to ly to lx.
     if (this.isUnitBounded(s2ty) && this.isUnitBounded(s2tx)) {
       vec2.lerp(v2, lx.begin, lx.end, s2tx);
-      this.solutions.push(new Solution(v, v2, 'V2Lyx'));
+      this.solutions.push(new Solution(v, v2, 'V2Lvyx'));
     }
+    // Solution projected from v to lx, and from v to ly.
     if (this.isUnitBounded(s1tx) && this.isUnitBounded(s2ty)) {
-      var v3 = vec3.create();
+      var v3 = [0, 0];
       vec2.lerp(v2, lx.begin, lx.end, s1tx);
       vec2.lerp(v3, ly.begin, ly.end, s2ty);
-      this.solutions.push(new Solution(v2, v3, 'V2Lyx'));
+      this.solutions.push(new Solution(v2, v3, 'V2Lvxvy'));
     }
   };
   /* Attempts to find a solution with diagonal corners on a vertex and one

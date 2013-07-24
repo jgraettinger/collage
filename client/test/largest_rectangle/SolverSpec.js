@@ -1,40 +1,114 @@
 define([
     'underscore',
-    'largest_rectangle/Solver',
+    'largest_rectangle/Constants',
     'largest_rectangle/Model',
-    'largest_rectangle/Transform',
     'largest_rectangle/Solution',
-], function (_, Solver, Model, Transform, Solution) {
+    'largest_rectangle/Solver',
+    'largest_rectangle/Transform',
+], function (_, Constants, Model, Solution, Solver, Transform) {
   'use strict';
 
   describe('Solver', function () {
-    iit('finds a solution touching 4 lines', function () {
+    it('finds a solution touching 4 lines', function () {
+      // TODO(johng): Remove this manual case. Add a case for axis-aligned.
       var model = new Model([
         [-1, 0],
         [0, 1],
         [1, 0],
-        [0, -1]
+        [0, -1],
       ]);
       var solver = new Solver();
       solver.find4L(model.lowerLeftChain[0], model.lowerRightChain[0],
         model.upperRightChain[0], model.upperLeftChain[0]);
 
-      expect(solver.solutions).toEqual(
-      [new Solution([-0.5, -0.5], [0.5, 0.5], '4L')]);
+      expect(solver.solutions).toEqual([
+        new Solution([-0.5, -0.5], [0.5, 0.5]),
+      ]);
+
+      var s = Math.sin(Math.PI / 4) * 0.5;
+      model = new Model(Transform.basic().rotateZ(Math.PI / 4)
+        .viewCoordinates());
+      solver = new Solver();
+
+      solver.find4L(model.lowerLeftChain[0], model.lowerRightChain[0],
+        model.upperRightChain[0], model.upperLeftChain[0]);
+      expect(solver.solutions).toEqual([
+        new Solution([-s, -s], [s, s]),
+      ]);
+
     });
-    iit('find a solution touching 3 lines', function () {
-      var model = new Model([
-        [-1.5, 2],
-        [-1, 0],
-        [1, 0],
-        [1.5, 2],
-       ])
+    it('finds a solution touching 3 lines', function () {
+      var model = new Model(Transform.basic().rotateZ(Math.PI / 4)
+        .viewCoordinates());
+      var s = Math.sin(Math.PI / 4) * 0.5;
+
       var solver = new Solver();
+      // model.lowerRightChain[0] has positive slope.
       solver.find3L(model.lowerLeftChain[0], model.lowerRightChain[0],
         model.upperRightChain[0]);
+      expect(solver.solutions).toEqual([
+        new Solution([-s, -s], [s, s]),
+      ]);
 
-      expect(solver.solutions).toEqual(
-      [new Solution([-0.5, -0.5], [0.5, 0.5], '3L')]);
+      solver = new Solver();
+      // model.upperRightChain[0] has negative slope.
+      solver.find3L(model.lowerRightChain[0], model.upperRightChain[0],
+        model.upperLeftChain[0]);
+      expect(solver.solutions).toEqual([
+        new Solution([-s, -s], [s, s]),
+      ]);
+    });
+    it('finds a solution touching a vertex and two lines', function () {
+      var model = new Model([
+        [0, 1],
+        [0, 0],
+        [1, 0],
+        [1.5, 1.5],
+      ]),
+        solver = new Solver();
+
+      solver.findV2L(model.lowerLeftChain[0].begin, model.lowerRightChain[0],
+        model.upperLeftChain[1]);
+      expect(solver.solutions).toEqual([
+        new Solution([0, 0], [1.333333, 1]),
+        new Solution([0, 0], [1, 1.333333]),
+        new Solution([0, 0], [1, 1]),
+      ]);
+
+      model = new Model([
+        [0, 1],
+        [0, 0],
+        [1, 0],
+        [0.5, 0.5],
+      ]);
+      solver = new Solver();
+      // X to Y and Y to X projections are filtered (they're not unit-bounded).
+      solver.findV2L(model.lowerLeftChain[0].begin, model.upperRightChain[0],
+        model.upperRightChain[1]);
+      expect(solver.solutions).toEqual([
+        new Solution([0, 0], [1, 1]),
+      ]);
+    });
+    it('finds a solution touching a vertex and a line', function () {
+      var model = new Model(Transform.basic()
+        .rotateY(Math.PI / 4)
+        .rotateZ(Math.PI / 4)
+        .viewCoordinates()),
+        solver = new Solver(),
+        s = Math.sin(Math.PI / 4);
+
+      solver.findV1L(model.lowerLeftChain[0].begin,
+        model.lowerRightChain[0]);
+      expect(solver.solutions).toEqual([
+        new Solution([-0.5, -s], [0, 0]),
+      ]);
+    });
+    it('finds a solution touching two vertices', function () {
+      var solver = new Solver();
+      solver.find2V([-1, 1], [1, -1]);
+      expect(solver.solutions).toEqual([
+        new Solution([1, 1], [-1, -1]),
+      ]);
     });
   });
 });

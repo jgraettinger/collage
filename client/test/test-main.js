@@ -2,6 +2,17 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
   return /Spec\.js$/.test(file);
 });
 
+// If an object defines an 'equals' method, have Jasmine make
+// use of it when determining deep object equality.
+jasmine.getEnv().addEqualityTester(function(a, b) {
+  if (typeof a.equals === 'function') {
+    return a.equals(b);
+  }
+  if (typeof b.equals === 'function') {
+    return b.equals(a);
+  }
+});
+
 requirejs.config({
   // Karma serves files from '/base'.
   baseUrl: '/base',

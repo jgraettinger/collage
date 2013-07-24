@@ -1,19 +1,19 @@
 define([
     'gl-matrix',
     'underscore',
-], function (glMatrix, _) {
+    'largest_rectangle/Constants',
+], function (glMatrix, _, Constants) {
   'use strict';
 
   var vec2 = glMatrix.vec2;
-  var EPSILON = 0.0001;
 
   function Segment(begin, end) {
     // Determine the plane parameterization of the segment, with a normal
     // rotated 90' to the left. For a polygon given in counter-clockwise
     // order, points inside the polygon will have positive distance to
     // all of the polygon's segments.
-    var vector = vec2.subtract(vec2.create(), end, begin);
-    var normal = vec2.fromValues(-1 * vector[1], vector[0]);
+    var vector = [end[0] - begin[0], end[1] - begin[1]],
+      normal = [-1 * vector[1], vector[0]];
     vec2.scale(normal, normal, 1.0 / vec2.length(normal));
 
     this.vector = vector;
@@ -40,7 +40,7 @@ define([
    * are assumed to be rounding error, and considered 'inside' the plane.
    */
   Segment.prototype.inside = function (v) {
-    return this.distance(v) >= -EPSILON;
+    return this.distance(v) >= -Constants.EPSILON;
   };
   return Segment;
 });

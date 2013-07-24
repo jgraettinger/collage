@@ -1,4 +1,6 @@
-define([], function () {
+define([
+    'largest_rectangle/Constants'
+], function (Constants) {
   'use strict';
 
   function Solution(cornerOne, cornerTwo, solver) {
@@ -9,5 +11,16 @@ define([], function () {
     this.area = (this.xMax - this.xMin) * (this.yMax - this.yMin);
     this.solver = solver;
   }
+  Solution.prototype.equals = function (other) {
+    return other.__proto__.constructor === Solution &&
+      Constants.epsilonEqual(this.xMin, other.xMin) &&
+      Constants.epsilonEqual(this.xMax, other.xMax) &&
+      Constants.epsilonEqual(this.yMin, other.yMin) &&
+      Constants.epsilonEqual(this.yMax, other.yMax);
+  };
+  Solution.prototype.toString = function () {
+    return 'Solution([' + this.xMin + ', ' + this.yMin +
+      '], [' + this.xMax + ', ' + this.yMax + '])';
+  };
   return Solution;
 });

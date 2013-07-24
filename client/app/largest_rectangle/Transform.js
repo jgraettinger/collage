@@ -49,6 +49,12 @@ define([
     transform.viewSpanY = this.viewSpanY;
     return transform;
   };
+  Transform.prototype.resize = function (width, height) {
+    var transform = this.clone();
+    transform.width = width;
+    transform.height = height;
+    return transform;
+  };
   Transform.prototype.rotateX = function (r) {
     var transform = this.clone();
     transform.rotation = quat.create();
@@ -83,7 +89,7 @@ define([
     transform.translation[2] += z;
     return transform;
   };
-  Transform.prototype.viewport = function(x, y, w, h) {
+  Transform.prototype.viewport = function (x, y, w, h) {
     var transform = this.clone();
     transform.viewMinX = x;
     transform.viewMinY = y;

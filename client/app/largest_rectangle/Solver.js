@@ -229,5 +229,77 @@ define([
   Solver.prototype.find2V = function (v1, v2) {
     this.solutions.push(new Solution(v1, v2, '2V'));
   };
+  /* Finds all potential solutions, by enumerating every combination of
+   * vertices and segments which could form a largest incribed rectangle.
+   *
+   * @param {Model} model Model describing the polygon.
+   */
+  Solver.prototype.findPotentialSolutions = function (model) {
+    var ll = model.lowerLeftChain,
+      lr = model.lowerRightChain,
+      ur = model.upperRightChain,
+      ul = model.upperLeftChain;
+    // Look for a 4-segment solution.
+    if (ll.length == 1 && lr.length == 1 &&
+      ur.length == 1 && ul.length == 1) {
+      this.find4L(ll[0], lr[0], ur[0], ul[0]);
+    }
+    // Look for a 3-segment solution by checking each permutation of
+    // three consecutive chains in the characterization.
+    _.each([
+      [ll, lr, ur],
+      [ll, ur, ul],
+      [ll, lr, ul],
+      [lr, ur, ul],
+      [ur, ul, ll],
+      [ul, ll, lr],
+    ], function (chains) {
+      var c1 = chains[0],
+        c2 = chains[1],
+        c3 = chains[2];
+      for (var i = 0; i != c1.length; ++i) {
+        for (var j = 0; j != c2.length; ++j) {
+          for (var k = 0; k != c3.length; ++k) {
+            this.find3L(c1[i], c2[j], c3[k]);
+          }
+        }
+      }
+    });
+    // Look for a 1-vertex, 1-line solution between opposing chains.
+    _.each([
+      [ll, ur],
+      [ur, ll],
+      [lr, ul],
+      [ul, lr],
+    ], function (chains) {
+      var c1 = chains[0],
+        c2 = chains[1];
+      if (c1.length != 2) {
+        return;
+      }
+      var v = model.midpoint(c1);
+      for (var i = 0; i != c2.length; ++i) {
+        this.findV1L(v, c2[i]);
+      }
+    });
+    // Look for a 2-vertex solution between two opposing chains of length 2, or
+    // a 1-vertex / 2-segment solution between the middle vertex of a length-2
+    // chain, and two opposing chains.
+    var byLength = [ll, lr, ur, ul];
+    byLength.sort(function (c1, c2) {
+      return c2.length - c1.length;
+    });
+    if (byLength[0].length == 2) {
+      var v1 = model.midpoint(byLength[0]);
+      if (byLength[1].length == 2) {
+        // Look for a 2-vertex solution between these chain midpoints.
+        var v2 = model.midpoint(byLength[1]);
+        this.find2V(v1, v2);
+      } else {
+        // Look for a 1-vertex, 2-segment solution.
+        this.findV2L(v1, byLength[1][0], byLength[2][0]);
+      }
+    }
+  };
   return Solver;
 });

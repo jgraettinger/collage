@@ -1,17 +1,25 @@
 define([
-  'angular',
-  'filters',
-  'services',
-  'directives',
-  'controllers',
-  ], function(angular) {
-    'use strict';
+    'angular',
+    'largest_rectangle/DemoController'
+], function (
+  angular,
+  DemoController) {
+  'use strict';
 
-    return angular.module('collage',
-      ['collage.filters', 'collage.services', 'collage.directives', 'collage.controllers'])
-      .config(['$routeProvider', function($routeProvider) {
-        $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});
-        $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'});
-        $routeProvider.otherwise({redirectTo: '/view1'});
-      }]);
+  var module = angular.module('collage', []);
+
+  // Controller registrations.
+  module.controller('largest_rectangle/DemoController', DemoController);
+
+  function createRoutes($routeProvider) {
+    $routeProvider.when('/largest_rectangle_demo', {
+      templateUrl: 'html/largest_rectangle/demo.html',
+      controller: 'largest_rectangle/DemoController'
+    });
+    $routeProvider.otherwise({
+      redirectTo: '/largest_rectangle_demo'
+    });
+  };
+  module.config(['$routeProvider', createRoutes]);
+  return module;
 });

@@ -9,7 +9,10 @@
     "es5-shim": "~2.0.8",
     "angular-resource": "~1.0.7",
     "angular-cookies": "~1.0.7",
-    "angular-sanitize": "~1.0.7"
+    "angular-sanitize": "~1.0.7",
+    "gl-matrix": "~2.2.0",
+    "numericjs": "~1.2.6",
+    "underscore": "~1.5.1"
   },
   "devDependencies": {
     "angular-mocks": "~1.0.7",

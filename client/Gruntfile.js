@@ -1,7 +1,9 @@
 // Generated on 2013-07-27 using generator-angular 0.3.1
 'use strict';
 var LIVERELOAD_PORT = 35729;
-var lrSnippet = require('connect-livereload')({ port: LIVERELOAD_PORT });
+var lrSnippet = require('connect-livereload')({
+  port: LIVERELOAD_PORT
+});
 var mountFolder = function (connect, dir) {
   return connect.static(require('path').resolve(dir));
 };
@@ -19,7 +21,8 @@ module.exports = function (grunt) {
   // configurable paths
   var yeomanConfig = {
     app: 'app',
-    dist: 'dist'
+    dist: 'dist',
+    test: 'test',
   };
 
   try {
@@ -108,14 +111,41 @@ module.exports = function (grunt) {
       },
       server: '.tmp'
     },
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc'
+    jsbeautifier: {
+      'default': {
+        src: [
+          'Gruntfile.js',
+          '<%= yeoman.app %>/scripts/{,*/}*.js',
+          '<%= yeoman.test %>/spec/{,*/}*.js',
+        ],
+        options: {
+          'indent_size': 2,
+          'max_preserve_newlines': 2,
+          'jslint_happy': true,
+          'wrap_line_length': 78,
+        },
       },
-      all: [
-        'Gruntfile.js',
-        '<%= yeoman.app %>/scripts/{,*/}*.js'
-      ]
+    },
+    jshint: {
+      app: {
+        options: {
+          jshintrc: '.jshintrc',
+        },
+        files: {
+          src: [
+            'Gruntfile.js',
+            '<%= yeoman.app %>/scripts/{,*/}*.js',
+          ],
+        },
+      },
+      tests: {
+        options: {
+          jshintrc: '<%= yeoman.test %>/.jshintrc',
+        },
+        files: {
+          src: ['<%= yeoman.test %>/spec/{,*/}*.js'],
+        }
+      }
     },
     coffee: {
       dist: {
@@ -352,6 +382,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('default', [
+    'jsbeautifier',
     'jshint',
     'test',
     'build'

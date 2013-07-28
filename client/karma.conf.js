@@ -9,8 +9,13 @@ files = [
   JASMINE_ADAPTER,
   'app/bower_components/angular/angular.js',
   'app/bower_components/angular-mocks/angular-mocks.js',
+  'app/bower_components/gl-matrix/dist/gl-matrix-min.js',
+  //'app/bower_components/numericjs/lib/numeric-*.min.js',
+  'app/bower_components/numericjs/lib/numeric-1.2.6.js',
+  'app/bower_components/underscore/underscore-min.js',
   'app/scripts/*.js',
   'app/scripts/**/*.js',
+  'test/environment.js',
   'test/mock/**/*.js',
   'test/spec/**/*.js'
 ];
@@ -36,7 +41,7 @@ colors = true;
 logLevel = LOG_INFO;
 
 // enable / disable watching file and executing tests whenever any file changes
-autoWatch = false;
+autoWatch = true;
 
 // Start these browsers, currently available:
 // - Chrome
@@ -46,7 +51,7 @@ autoWatch = false;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['Chrome'];
+browsers = [];//'Chrome'];
 
 // If browser does not capture in given timeout [ms], kill it
 captureTimeout = 5000;

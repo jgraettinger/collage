@@ -58,19 +58,22 @@ angular.module('collage.largest_rectangle.Transform', ['vendor'])
       Transform.prototype.rotateX = function (r) {
         var transform = this.clone();
         transform.rotation = quat.create();
-        quat.rotateX(transform.rotation, this.rotation, r);
+        quat.rotateX(transform.rotation, transform.rotation, r);
+        quat.multiply(transform.rotation, transform.rotation, this.rotation);
         return transform;
       };
       Transform.prototype.rotateY = function (r) {
         var transform = this.clone();
         transform.rotation = quat.create();
-        quat.rotateY(transform.rotation, this.rotation, r);
+        quat.rotateY(transform.rotation, transform.rotation, r);
+        quat.multiply(transform.rotation, transform.rotation, this.rotation);
         return transform;
       };
       Transform.prototype.rotateZ = function (r) {
         var transform = this.clone();
         transform.rotation = quat.create();
-        quat.rotateZ(transform.rotation, this.rotation, r);
+        quat.rotateZ(transform.rotation, transform.rotation, r);
+        quat.multiply(transform.rotation, transform.rotation, this.rotation);
         return transform;
       };
       Transform.prototype.rotate = function (x, y, z) {

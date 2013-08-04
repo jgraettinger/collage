@@ -16,7 +16,9 @@ angular.module('vendor', [])
   .value('vendor.gl-matrix.mat4', mat4)
   .value('vendor.gl-matrix.quat', quat);
 
-angular.module('clientApp', [])
+angular.module('clientApp', [
+    'collage.largest_rectangle.DemoCtrl',
+    ])
   .config(['$routeProvider',
     function ($routeProvider) {
       $routeProvider
@@ -26,7 +28,7 @@ angular.module('clientApp', [])
         })
         .when('/LargestRectangleDemo', {
           templateUrl: 'views/LargestRectangleDemo.html',
-          controller: 'LargestrectangledemoCtrl'
+          controller: 'collage.largest_rectangle.DemoCtrl'
         })
         .otherwise({
           redirectTo: '/'

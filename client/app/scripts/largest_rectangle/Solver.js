@@ -271,7 +271,7 @@ angular.module('collage.largest_rectangle.Solver', [
               }
             }
           }
-        });
+        }, this);
         // Look for a 1-vertex, 1-line solution between opposing chains.
         _.each([
           [ll, ur],
@@ -288,7 +288,7 @@ angular.module('collage.largest_rectangle.Solver', [
           for (var i = 0; i !== c2.length; ++i) {
             this.findV1L(v, c2[i]);
           }
-        });
+        }, this);
         // Look for a 2-vertex solution between two opposing chains of length 2, or
         // a 1-vertex / 2-segment solution between the middle vertex of a length-2
         // chain, and two opposing chains.

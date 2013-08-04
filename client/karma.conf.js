@@ -12,6 +12,7 @@ files = [
   'app/bower_components/gl-matrix/dist/gl-matrix-min.js',
   //'app/bower_components/numericjs/lib/numeric-*.min.js',
   'app/bower_components/numericjs/lib/numeric-1.2.6.js',
+  //'app/bower_components/pointerevents-polyfill/pointerevents.min.js',
   'app/bower_components/underscore/underscore-min.js',
   'app/scripts/*.js',
   'app/scripts/**/*.js',

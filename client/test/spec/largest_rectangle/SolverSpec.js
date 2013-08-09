@@ -104,8 +104,8 @@ describe('collage.largest_rectangle.Solver', function () {
   });
   it('finds a solution touching a vertex and a line', function () {
     var model = new Model(Transform.basic()
-      .rotateY(Math.PI / 4)
       .rotateZ(Math.PI / 4)
+      .rotateY(Math.PI / 4)
       .viewCoordinates()),
       solver = new Solver(),
       s = Math.sin(Math.PI / 4);

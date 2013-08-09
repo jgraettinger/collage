@@ -11,8 +11,4 @@ describe('Controller: collage.largest_rectangle.DemoCtrl', function () {
       $scope: scope
     });
   }));
-
-  iit('should attach a list of awesomeThings to the scope', function () {
-    expect(scope.awesomeThings.length).toBe(3);
-  });
 });

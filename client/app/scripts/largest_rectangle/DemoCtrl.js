@@ -23,13 +23,18 @@
       }
     };
 
+    $scope.rotate90 = function () {
+      $scope.transform = $scope.transform.rotateZ(Math.PI / 2);
+    };
+
     $scope.updateModel = function () {
       $scope.model = new Model($scope.transform.windowCoordinates());
     };
     $scope.updateSolutions = function (model, prevModel, scope) {
       var solver = new Solver();
-      //solver.findPotentialSolutions(model);
+      solver.findPotentialSolutions(model);
       $scope.solutions = solver.solutions;
+      $scope.solutions.sort(function (a, b) { return b.area - a.area; });
     };
     $scope.$watch('transform', $scope.updateModel);
     $scope.$watch('model', $scope.updateSolutions);

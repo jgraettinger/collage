@@ -3,5 +3,13 @@
 <input type="radio" ng-model="axis" value="x" label="X-Axis">X-Axis
 <input type="radio" ng-model="axis" value="y">Y-Axis
 <input type="radio" ng-model="axis" value="z">Z-Axis
+<input type="button" ng-click="rotate90()" value="Rotate 90">
 </form>
-<collage-largest-rectangle-democanvas/>
+<collage-largest-rectangle-democanvas></collage-largest-rectangle-democanvas>
+<table>
+	<tr ng-repeat="solution in solutions">
+	<td>{{solution.solver}}</td>
+	<td>{{solution.area | number:2}}</td>
+	<td>{{model.boundaryTest(solution)}}</td>
+	</tr>
+</table>

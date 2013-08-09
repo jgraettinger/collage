@@ -116,6 +116,12 @@ angular.module('collage.largest_rectangle.Solver', [
         var targetSlope = -slopeMax * (slopeMin - l2.slope) / (slopeMax -
           l2.slope);
 
+        // The segments fail to converge, and there is no solution.
+        // Eg, this happens if the segments are axis-aligned.
+        if (isNaN(targetSlope) || Math.abs(targetSlope) < epsilon) {
+          return;
+        }
+
         // Create a system which finds a point on l2, and projects it along the
         // Y-axis to l1 and X-axis to l3, such that the line formed by the l1, l3
         // projections form a solution with slope targetSlope.

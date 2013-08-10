@@ -31,6 +31,11 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     yeoman: yeomanConfig,
+    bower: {
+      target: {
+        rjsConfig: '<%= yeoman.app %>/scripts/require_config.js'
+      }
+    },
     watch: {
       coffee: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],

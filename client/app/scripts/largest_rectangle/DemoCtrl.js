@@ -1,8 +1,23 @@
 'use strict';
 
-(function (module) {
+define([
+  'angular',
+  'gl-matrix',
+  'pointerevents-polyfill',
+  'underscore',
+  'collage/largest_rectangle/Model',
+  'collage/largest_rectangle/Solver',
+  'collage/largest_rectangle/Transform',
+], function (
+  angular,
+  glMatrix,
+  pointerEvents,
+  _,
+  Model,
+  Solver,
+  Transform) {
 
-  var DemoController = function ($scope, quat, Model, Solver, Transform) {
+  var DemoController = function ($scope) {
     $scope.transform = new Transform().translate(0, 0, 3);
 
     $scope.axis = 'x';
@@ -11,15 +26,15 @@
     $scope.applyRotation = function (pixels) {
       var radians = pixels / $scope.pixelsToRadians;
       switch ($scope.axis) {
-        case 'x':
-          $scope.transform = $scope.transform.rotateX(radians);
-          break;
-        case 'y':
-          $scope.transform = $scope.transform.rotateY(radians);
-          break;
-        case 'z':
-          $scope.transform = $scope.transform.rotateZ(radians);
-          break;
+      case 'x':
+        $scope.transform = $scope.transform.rotateX(radians);
+        break;
+      case 'y':
+        $scope.transform = $scope.transform.rotateY(radians);
+        break;
+      case 'z':
+        $scope.transform = $scope.transform.rotateZ(radians);
+        break;
       }
     };
 
@@ -33,23 +48,17 @@
     $scope.updateSolutions = function (model, prevModel, scope) {
       var solver = new Solver();
       solver.findPotentialSolutions(model);
-      $scope.solutions = solver.solutions;
-      $scope.solutions.sort(function (a, b) { return b.area - a.area; });
+      scope.solutions = solver.solutions;
+      scope.solutions.sort(function (a, b) {
+        return b.area - a.area;
+      });
     };
     $scope.$watch('transform', $scope.updateModel);
     $scope.$watch('model', $scope.updateSolutions);
-
   };
-  DemoController.$inject = [
-      '$scope',
-      'vendor.gl-matrix.quat',
-      'collage.largest_rectangle.Model',
-      'collage.largest_rectangle.Solver',
-      'collage.largest_rectangle.Transform',
-  ];
-  module.controller('collage.largest_rectangle.DemoCtrl', DemoController);
+  DemoController.$inject = ['$scope'];
 
-  var DemoLinker = function (scope, element, $attrs) {
+  var DemoLinker = function (scope, element /*, $attrs*/ ) {
     var canvas = element[0];
     var context = canvas.getContext('2d');
     if (!context) {
@@ -71,26 +80,25 @@
     element.bind('pointerdown', function (event) {
       var lastOffsetX = event.clientX;
 
-      element.bind('pointermove', function(event) {
+      element.bind('pointermove', function (event) {
         scope.applyRotation(event.clientX - lastOffsetX);
         lastOffsetX = event.clientX;
         scope.$apply();
       });
-      element.bind('pointerup', function (event) {
+      element.bind('pointerup', function ( /*event*/ ) {
         element.unbind('pointermove');
         element.unbind('pointerup');
       });
-      element.bind('pointerleave', function (event) {
+      element.bind('pointerleave', function ( /*event*/ ) {
         element.unbind('pointermove');
         element.unbind('pointerup');
       });
     });
 
-
     // Bind the scope solutions to update the canvas.
     var drawChain = function (color, chain) {
       context.strokeStyle = color;
-      for (var i = 0; i != chain.length; ++i) {
+      for (var i = 0; i !== chain.length; ++i) {
         var l = chain[i];
         context.beginPath();
         context.moveTo(l.begin[0], canvas.height - l.begin[1]);
@@ -123,18 +131,18 @@
     scope.$watch('solutions', updateCanvas);
   };
 
-  module.directive('collageLargestRectangleDemocanvas', function () {
+  var DemoDirectiveCanvasDirective = function () {
     return {
       restrict: 'E',
       template: '<canvas width="500" height="400" touch-action="pan-y"/>',
       replace: true,
       scope: false,
       link: DemoLinker,
-    }
-  });
-}(angular.module('collage.largest_rectangle.DemoCtrl', [
-    'vendor',
-    'collage.largest_rectangle.Model',
-    'collage.largest_rectangle.Solver',
-    'collage.largest_rectangle.Transform',
-])));
+    };
+  };
+
+  return {
+    controller: DemoController,
+    directive: DemoDirectiveCanvasDirective,
+  };
+});

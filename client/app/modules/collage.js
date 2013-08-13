@@ -3,7 +3,7 @@
 require([
   'angular',
   'collage/controllers/main',
-  'collage/largest_rectangle/DemoCtrl',
+  'collage/controllers/DemoCtrl',
 ], function (angular, MainCtrl, DemoCtrl) {
 
   var collage = angular.module('collage', []);

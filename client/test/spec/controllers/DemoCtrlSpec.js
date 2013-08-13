@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-  'collage/largest_rectangle/DemoCtrl',
+  'collage/controllers/DemoCtrl',
 ], function (DemoCtrl) {
   describe('collage/largest_rectangle/DemoCtrl', function () {
     var ctrl, scope;

@@ -3,7 +3,7 @@
 require.config({
   baseUrl: '',
   paths: {
-    collage: 'scripts',
+    collage: '.',
 
     angular: 'bower_components/angular/angular',
     'angular-cookies': 'bower_components/angular-cookies/angular-cookies',

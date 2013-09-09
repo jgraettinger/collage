@@ -4,10 +4,10 @@ require([
   'angular',
   'collage/controllers/main',
   'collage/controllers/DemoCtrl',
-], function (angular, MainCtrl, DemoCtrl) {
+  'collage/modules/webgl',
+], function (angular, MainCtrl, DemoCtrl, WebglModule) {
 
-  var collage = angular.module('collage', []);
-
+  var collage = angular.module('collage', [WebglModule.name]);
   collage.directive('collageLargestRectangleDemocanvas', DemoCtrl.directive);
 
   collage.config(function ($routeProvider) {

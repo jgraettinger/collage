@@ -2,10 +2,12 @@
 
 define([
   'collage/controllers/main',
-], function (MainCtrl) {
+  'collage/modules/webgl',
+], function (MainCtrl, WebglModule) {
   describe('collage/largest_rectangle/MainCtrl', function () {
     var ctrl, scope;
 
+    beforeEach(module(WebglModule.name));
     beforeEach(inject(function ($controller, $rootScope) {
       scope = $rootScope.$new();
       ctrl = $controller(MainCtrl, {

@@ -1,19 +1,48 @@
 $iconSpritePath: "../images/glyphicons-halflings.png";
 $iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
 
-@import "bootstrap-sass/lib/bootstrap";
+//@import "bootstrap-sass/lib/bootstrap";
 
 /* Put your CSS here */
-html, body {
-  margin: 20px;
+
+body, html {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
 }
 
 body {
     background: #fafafa;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: normal 100% "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #333;
 }
 
+.collage-controls {
+    background: #cccccc;
+    float: right;
+    width: 38.19660%;
+    height: 100%;
+}
+
+div[webgl-canvas] canvas {
+    width: 100%;
+    height: 100%;
+}
+
+div[webgl-canvas] {
+    float: left;
+    background: #aaaaaa;
+    width: 61.80339%;
+    height: 100%;
+}
+
+/*
 .hero-unit {
     margin: 50px auto 0 auto;
     width: 300px;
@@ -30,3 +59,5 @@ body {
     line-height: 1;
     letter-spacing: -1px;
 }
+*/
+

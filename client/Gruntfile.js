@@ -33,12 +33,12 @@ module.exports = function (grunt) {
     yeoman: yeomanConfig,
     bower: {
       target: {
-        rjsConfig: '<%= yeoman.app %>/scripts/require_config.js'
+        rjsConfig: '<%= yeoman.app %>/require_config.js'
       }
     },
     watch: {
       coffee: {
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
+        files: ['<%= yeoman.app %>/{,*/}*.coffee'],
         tasks: ['coffee:dist']
       },
       coffeeTest: {
@@ -56,7 +56,7 @@ module.exports = function (grunt) {
         files: [
           '<%= yeoman.app %>/{,*/}*.html',
           '{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
-          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
+          '{.tmp,<%= yeoman.app %>}/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
@@ -120,7 +120,7 @@ module.exports = function (grunt) {
       'default': {
         src: [
           'Gruntfile.js',
-          '<%= yeoman.app %>/scripts/{,*/}*.js',
+          '<%= yeoman.app %>/{,*/}*.js',
           '<%= yeoman.test %>/spec/{,*/}*.js',
         ],
         options: {
@@ -139,7 +139,7 @@ module.exports = function (grunt) {
         files: {
           src: [
             'Gruntfile.js',
-            '<%= yeoman.app %>/scripts/{,*/}*.js',
+            '<%= yeoman.app %>/{,*/}*.js',
           ],
         },
       },
@@ -156,9 +156,9 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '<%= yeoman.app %>/scripts',
+          cwd: '<%= yeoman.app %>',
           src: '{,*/}*.coffee',
-          dest: '.tmp/scripts',
+          dest: '.tmp',
           ext: '.js'
         }]
       },
@@ -178,7 +178,7 @@ module.exports = function (grunt) {
         cssDir: '.tmp/styles',
         generatedImagesDir: '.tmp/images/generated',
         imagesDir: '<%= yeoman.app %>/images',
-        javascriptsDir: '<%= yeoman.app %>/scripts',
+        javascriptsDir: '<%= yeoman.app %>',
         fontsDir: '<%= yeoman.app %>/styles/fonts',
         importPath: '<%= yeoman.app %>/bower_components',
         httpImagesPath: '/images',
@@ -202,7 +202,7 @@ module.exports = function (grunt) {
       dist: {
         files: {
           src: [
-            '<%= yeoman.dist %>/scripts/{,*/}*.js',
+            '<%= yeoman.dist %>/{,*/}*.js',
             '<%= yeoman.dist %>/styles/{,*/}*.css',
             '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             '<%= yeoman.dist %>/styles/fonts/*'

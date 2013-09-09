@@ -18,6 +18,7 @@ require.config({
     numericjs: 'bower_components/numericjs/lib/numeric-1.2.6',
     'pointerevents-polyfill': 'bower_components/pointerevents-polyfill/pointerevents.min',
     underscore: 'bower_components/underscore/underscore',
+    text: 'bower_components/requirejs-text/text',
   },
   shim: {
     angular: {

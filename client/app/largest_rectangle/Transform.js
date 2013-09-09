@@ -97,18 +97,28 @@ define(['gl-matrix', ], function (glMatrix) {
     transform.viewSpanY = h;
     return transform;
   };
+  Transform.prototype.modelViewMatrix = function (mvMatrix) {
+    mat4.fromRotationTranslation(mvMatrix, this.rotation, this.translation);
+  };
+  Transform.prototype.perspectiveMatrix = function (pMatrix) {
+    var xMin = -Math.tan(this.fovNegX) * this.near,
+      xMax = Math.tan(this.fovPosX) * this.near,
+      yMin = -Math.tan(this.fovNegY) * this.near,
+      yMax = Math.tan(this.fovPosY) * this.near;
+    mat4.frustum(pMatrix, xMin, xMax, yMin, yMax, this.near, this.far);
+  };
   Transform.prototype.localCoordinates = function () {
     return [
       vec4.fromValues(-this.width / 2, this.height / 2, 0, 1),
-      vec4.fromValues(this.width / 2, this.height / 2, 0, 1),
-      vec4.fromValues(this.width / 2, -this.height / 2, 0, 1),
       vec4.fromValues(-this.width / 2, -this.height / 2, 0, 1),
+      vec4.fromValues(this.width / 2, -this.height / 2, 0, 1),
+      vec4.fromValues(this.width / 2, this.height / 2, 0, 1),
     ];
   };
   Transform.prototype.viewCoordinates = function () {
     var mvMatrix = mat4.create(),
       coordinates = this.localCoordinates();
-    mat4.fromRotationTranslation(mvMatrix, this.rotation, this.translation);
+    this.modelViewMatrix(mvMatrix);
     for (var i = 0; i !== coordinates.length; ++i) {
       vec4.transformMat4(coordinates[i], coordinates[i], mvMatrix);
     }
@@ -116,12 +126,8 @@ define(['gl-matrix', ], function (glMatrix) {
   };
   Transform.prototype.clipCoordinates = function () {
     var pMatrix = mat4.create(),
-      coordinates = this.viewCoordinates(),
-      xMin = -Math.tan(this.fovNegX) * this.near,
-      xMax = Math.tan(this.fovPosX) * this.near,
-      yMin = -Math.tan(this.fovNegY) * this.near,
-      yMax = Math.tan(this.fovPosY) * this.near;
-    mat4.frustum(pMatrix, xMin, xMax, yMin, yMax, this.near, this.far);
+      coordinates = this.viewCoordinates();
+    this.perspectiveMatrix(pMatrix);
     for (var i = 0; i !== coordinates.length; ++i) {
       vec4.transformMat4(coordinates[i], coordinates[i], pMatrix);
     }

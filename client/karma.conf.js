@@ -17,6 +17,8 @@ module.exports = function(config) {
 
       'app/require_config.js',
       {pattern: 'app/**/*.js', included: false},
+      {pattern: 'app/shaders/*.vert', included: false},
+      {pattern: 'app/shaders/*.frag', included: false},
       {pattern: 'test/**/*Spec.js', included: false},
 
       'test/bootstrap.js',

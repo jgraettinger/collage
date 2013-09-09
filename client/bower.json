@@ -14,7 +14,8 @@
     "numericjs": "~1.2.6",
     "underscore": "~1.5.1",
     "pointerevents-polyfill": "~0.0.20130711",
-    "requirejs": "~2.1.8"
+    "requirejs": "~2.1.8",
+    "requirejs-text": "~2.0.10"
   },
   "devDependencies": {
     "angular-mocks": "~1.0.7",

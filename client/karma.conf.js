@@ -20,6 +20,7 @@ module.exports = function(config) {
       {pattern: 'app/shaders/*.vert', included: false},
       {pattern: 'app/shaders/*.frag', included: false},
       {pattern: 'test/**/*Spec.js', included: false},
+      {pattern: 'test/**/*-spec.js', included: false},
 
       'test/bootstrap.js',
     ],

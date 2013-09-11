@@ -18,6 +18,10 @@ for (var file in window.__karma__.files) {
     if (/Spec\.js$/.test(file)) {
       tests.push(file);
     }
+    // Omit tests in bower_components.
+    if (/^\/base\/test.*-spec\.js$/.test(file)) {
+      tests.push(file);
+    }
   }
 }
 

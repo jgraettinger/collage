@@ -1,11 +1,11 @@
+/*jshint bitwise: false*/
 'use strict';
 
 define([], function () {
 
-  var LOG2 = Math.log(2);
-
-  var TILE_SHIFT = 8,
-      TILE_SIZE = 1 << TILE_SHIFT;
+  var LOG2 = Math.log(2),
+    TILE_SHIFT = 8,
+    TILE_SIZE = 1 << TILE_SHIFT;
 
   function Tile(photo, level, wIndex, hIndex) {
     this.photo = photo;
@@ -21,7 +21,7 @@ define([], function () {
     if (hIndex * tileSize >= photo.height) {
       throw new Error('Invalid level/hIndex: ' + level + '/' + hIndex);
     }
-  };
+  }
   Tile.SHIFT = TILE_SHIFT;
   Tile.SIZE = TILE_SIZE;
 
@@ -39,25 +39,26 @@ define([], function () {
     return new Tile(photo, level, 0, 0);
   };
 
+  Tile.prototype.key = function () {
+    return 'tile/' + this.level + '/' + this.wIndex + '/' + this.hIndex;
+  };
+
   // Methods computing the tile's begin and end offsets.
   Tile.prototype.wBegin = function () {
     return (TILE_SIZE << this.level) * this.wIndex;
   };
   Tile.prototype.wEnd = function () {
-    return Math.min(this.photo.width,
-        (TILE_SIZE << this.level) * (this.wIndex + 1));
+    return Math.min((TILE_SIZE << this.level) * (this.wIndex + 1),
+      this.photo.width);
   };
   Tile.prototype.hBegin = function () {
     return (TILE_SIZE << this.level) * this.hIndex;
   };
   Tile.prototype.hEnd = function () {
-    return Math.min(this.photo.height,
-        (TILE_SIZE << this.level) * (this.hIndex + 1));
+    return Math.min((TILE_SIZE << this.level) * (this.hIndex + 1),
+      this.photo.height);
   };
 
-  Tile.prototype.hasChildren = function () {
-    return this.level > 0;
-  };
   Tile.prototype.children = function () {
     var children = [];
     if (this.level === 0) {
@@ -71,12 +72,12 @@ define([], function () {
      * one, plus zero or one.
      */
     var level = this.level - 1,
-        wIndex = this.wIndex << 1,
-        hIndex = this.hIndex << 1,
-        size = TILE_SIZE << level,
-        // Would the right/bottom child tiles lay outside the photo bounds?
-        wCheck = (wIndex + 1) * size < this.photo.width,
-        hCheck = (hIndex + 1) * size < this.photo.height;
+      wIndex = this.wIndex << 1,
+      hIndex = this.hIndex << 1,
+      size = TILE_SIZE << level,
+      // Would the right/bottom child tiles lay outside the photo bounds?
+      wCheck = (wIndex + 1) * size < this.photo.width,
+      hCheck = (hIndex + 1) * size < this.photo.height;
 
     // This tile is guaranteed to exist.
     children.push(new Tile(this.photo, level, wIndex, hIndex));

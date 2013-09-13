@@ -134,7 +134,7 @@ define([
       this._gl.viewport(0, 0, canvas.width, canvas.height);
       this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
-      sceneGraph.draw(this._gl);
+      sceneGraph.draw(this._gl, canvas.width, canvas.height);
 
       var err = this._gl.getError();
       if (err !== this._gl.NO_ERROR) {

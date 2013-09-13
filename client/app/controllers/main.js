@@ -3,24 +3,35 @@
 define([
   'gl-matrix',
   'largest_rectangle/Transform',
+  'models/tile',
+  'models/tile-culler',
   'text!collage/shaders/main.vert',
   'text!collage/shaders/main.frag',
 ], function (
   glMatrix,
   Transform,
+  Tile,
+  TileCuller,
   vertexShaderSource,
   fragmentShaderSource) {
   var mat4 = glMatrix.mat4;
 
-  var Controller = function ($scope, webgl, $window) {
+  var Controller = function ($scope, $window, tileGeometry, tileTextures,
+    webgl) {
     this._scope = $scope;
+
+    this._scope.lodBias = 0;
+    this._scope.zDistance = '-1';
+    this._scope.activeTiles = 0;
 
     this._scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
       'Karma'
     ];
-    this._transform = Transform.basic();
+
+    this._tileGeometry = tileGeometry;
+    this._tileTextures = tileTextures;
 
     // Compile and install vertex & fragment shaders.
     this._vertexShader = webgl.buildVertexShader(vertexShaderSource);
@@ -45,63 +56,88 @@ define([
     this._shaderProgram.samplerUniform = webgl.checkedGetUniformLocation(
       this._shaderProgram, 'uSampler');
 
-    // As we're drawing a strip, re-order the counter-clockwise transform order.
-    var v = this._transform.localCoordinates();
-    var buf = [
-      v[0][0], v[0][1], v[0][2],
-      v[1][0], v[1][1], v[1][2],
-      v[3][0], v[3][1], v[3][2],
-      v[2][0], v[2][1], v[2][2]
-    ];
-    buf.itemSize = 3;
-    this._vertexBuffer = webgl.buildBuffer(buf);
-
-    buf = [
-      0.0, 1.0,
-      0.0, 0.0,
-      1.0, 1.0,
-      1.0, 0.0
-    ];
-    buf.itemSize = 2;
-    this._texture0Buffer = webgl.buildBuffer(buf);
-
-    this._texture = webgl.loadTexture('images/test-pattern-1024x768.png');
-
     var self = this;
     setTimeout(function () {
       webgl.draw(self);
     }, 500);
-    angular.element($window).bind('resize',
-      function () {
-        webgl.draw(self);
-      });
+    angular.element($window).bind('resize', function () {
+      webgl.draw(self);
+    });
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    this._photo = {
+      width: 10666,
+      height: 8000,
+    };
+    this._rootTile = Tile.buildRootTile(this._photo);
+
+    this._scope.$watch('lodBias', function () {
+      webgl.draw(self);
+    }, true);
+    this._scope.$watch('zDistance', function () {
+      webgl.draw(self);
+    }, true);
   };
 
-  Controller.prototype.draw = function (gl) {
+  Controller.prototype.draw = function (gl, viewportWidth, viewportHeight) {
     // Load the perspective and modelview matrices.
-    var m = mat4.create();
-    this._transform.modelViewMatrix(m);
-    gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false, m);
-    this._transform.perspectiveMatrix(m);
-    gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, m);
+    var mvMatrix = mat4.create();
+    mat4.identity(mvMatrix);
+    mat4.translate(mvMatrix, mvMatrix, [0, 0, parseFloat(this._scope.zDistance)]);
+    mat4.rotate(mvMatrix, mvMatrix, 0.3, [0.5, 1, 1.5]);
+    mat4.translate(mvMatrix, mvMatrix, [-0.5, -0.5 * (this._photo.height /
+      this._photo.width), 0]);
+    mat4.scale(mvMatrix, mvMatrix, [1.0 / this._photo.width, 1.0 / this._photo
+      .width, 1
+    ]);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    var pMatrix = mat4.create();
+    mat4.perspective(pMatrix, 45, 1.33333, 0.1, 100.0);
+
+    gl.uniformMatrix4fv(this._shaderProgram.mvMatrixUniform, false,
+      mvMatrix);
+    gl.uniformMatrix4fv(this._shaderProgram.pMatrixUniform, false, pMatrix);
+
+    var tileCuller = new TileCuller(mvMatrix, pMatrix,
+      viewportWidth, viewportHeight);
+
+    var viewableTiles = tileCuller.viewableTiles(
+      this._rootTile, parseFloat(this._scope.lodBias));
+    this._scope.activeTiles = viewableTiles.length;
+
+    for (var i = 0; i !== viewableTiles.length; ++i) {
+      this.drawTile(gl, viewableTiles[i]);
+    }
+  };
+
+  Controller.prototype.drawTile = function (gl, tile) {
+
+    var geometry = this._tileGeometry.getGeometry(tile);
+    var texture = this._tileTextures.getTextures(tile);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexBuffer);
     gl.vertexAttribPointer(this._shaderProgram.vPositionAttribute,
-      this._vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      geometry.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._texture0Buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.textureBuffer);
     gl.vertexAttribPointer(this._shaderProgram.vTexture0Attribute,
-      this._texture0Buffer.itemSize, gl.FLOAT, false, 0, 0);
+      geometry.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(this._shaderProgram.samplerUniform, 0);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0,
-      this._vertexBuffer.length / this._vertexBuffer.itemSize);
-
-    console.log('finished controller.draw()');
+      geometry.vertexBuffer.length / geometry.vertexBuffer.itemSize);
   };
-  Controller.$inject = ['$scope', 'webgl', '$window'];
+
+  Controller.$inject = [
+    '$scope',
+    '$window',
+    'tileGeometry',
+    'tileTextures',
+    'webgl',
+  ];
   return Controller;
 });

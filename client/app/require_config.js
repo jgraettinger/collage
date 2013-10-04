@@ -19,6 +19,7 @@ require.config({
     'pointerevents-polyfill': 'bower_components/pointerevents-polyfill/pointerevents.min',
     underscore: 'bower_components/underscore/underscore',
     text: 'bower_components/requirejs-text/text',
+    'webgl-debug': 'bower_components/webgl-debug.js/index',
   },
   shim: {
     angular: {
@@ -33,5 +34,22 @@ require.config({
     underscore: {
       exports: '_'
     },
+    'webgl-debug': {
+      exports: 'WebGLDebugUtils'
+    },
   },
 });
+
+if (window.jasmine === undefined) {
+  // We're not being loaded in a unit-test context.
+  // Bootstrap by 'require'-ing the top-level application module
+  // and passing it to angular.bootstrap().
+  require([
+      'angular',
+      'collage/modules/collage',
+  ], function (angular, collage) {
+    var html = document.getElementsByTagName('html')[0];
+    angular.bootstrap(html, [collage.name]);
+    html.className += ' ng-app';
+  });
+}

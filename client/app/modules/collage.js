@@ -1,16 +1,15 @@
 'use strict';
 
-require([
+define([
   'angular',
   'collage/controllers/main',
   'collage/controllers/DemoCtrl',
   'collage/modules/webgl',
 ], function (angular, MainCtrl, DemoCtrl, WebglModule) {
+  var module = angular.module('collage', [WebglModule.name]);
+  module.directive('collageLargestRectangleDemocanvas', DemoCtrl.directive);
 
-  var collage = angular.module('collage', [WebglModule.name]);
-  collage.directive('collageLargestRectangleDemocanvas', DemoCtrl.directive);
-
-  collage.config(function ($routeProvider) {
+  module.config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -24,8 +23,6 @@ require([
         redirectTo: '/'
       });
   });
-
-  var html = document.getElementsByTagName('html')[0];
-  angular.bootstrap(html, [collage.name]);
-  html.className += ' ng-app';
+  console.log("collage module name: " + module.name);
+  return module;
 });

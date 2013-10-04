@@ -16,10 +16,10 @@ define([
       }
 
       var vertexData = [
-        tile.wBegin(), tile.hBegin(), 0,
-        tile.wBegin(), tile.hEnd(), 0,
-        tile.wEnd(), tile.hBegin(), 0,
-        tile.wEnd(), tile.hEnd(), 0
+        tile.wBegin(), -tile.hBegin(), 0,
+        tile.wBegin(), -tile.hEnd(), 0,
+        tile.wEnd(), -tile.hBegin(), 0,
+        tile.wEnd(), -tile.hEnd(), 0
       ];
       vertexData.itemSize = 3;
 
@@ -28,9 +28,9 @@ define([
 
       var textureData = [
         0.0, 0.0,
-        0.0, vMax,
-        uMax, 0.0,
-        uMax, vMax,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
       ];
       textureData.itemSize = 2;
 

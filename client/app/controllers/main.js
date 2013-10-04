@@ -21,8 +21,9 @@ define([
     this._scope = $scope;
 
     this._scope.lodBias = 0;
-    this._scope.zDistance = '-1';
+    this._scope.zDistance = '-0.35';
     this._scope.activeTiles = 0;
+    this._scope.gamma = '1.0';
 
     this._scope.awesomeThings = [
       'HTML5 Boilerplate',
@@ -33,12 +34,13 @@ define([
     this._tileGeometry = tileGeometry;
     this._tileTextures = tileTextures;
 
+    this._webgl = webgl;
+
     // Compile and install vertex & fragment shaders.
     this._vertexShader = webgl.buildVertexShader(vertexShaderSource);
     this._fragmentShader = webgl.buildFragmentShader(fragmentShaderSource);
     this._shaderProgram = webgl.buildShaderProgram(this._vertexShader,
       this._fragmentShader);
-    webgl.useShaderProgram(this._shaderProgram);
 
     // Collect handles to shader inputs.
     this._shaderProgram.vPositionAttribute = webgl.checkedGetAttribLocation(
@@ -56,6 +58,9 @@ define([
     this._shaderProgram.samplerUniform = webgl.checkedGetUniformLocation(
       this._shaderProgram, 'uSampler');
 
+    this._shaderProgram.gammaUniform = webgl.checkedGetUniformLocation(
+        this._shaderProgram, 'gamma');
+
     var self = this;
     setTimeout(function () {
       webgl.draw(self);
@@ -67,8 +72,9 @@ define([
     ///////////////////////////////////////////////////////////////////////////
     //
     this._photo = {
-      width: 10666,
-      height: 8000,
+      id: "foobar",
+      width: 5216,
+      height: 3472,
     };
     this._rootTile = Tile.buildRootTile(this._photo);
 
@@ -78,15 +84,24 @@ define([
     this._scope.$watch('zDistance', function () {
       webgl.draw(self);
     }, true);
+    this._scope.$watch('gamma', function () {
+      webgl.draw(self);
+    }, true);
   };
 
   Controller.prototype.draw = function (gl, viewportWidth, viewportHeight) {
+    this._webgl.useShaderProgram(this._shaderProgram);
     // Load the perspective and modelview matrices.
     var mvMatrix = mat4.create();
     mat4.identity(mvMatrix);
     mat4.translate(mvMatrix, mvMatrix, [0, 0, parseFloat(this._scope.zDistance)]);
     mat4.rotate(mvMatrix, mvMatrix, 0.3, [0.5, 1, 1.5]);
-    mat4.translate(mvMatrix, mvMatrix, [-0.5, -0.5 * (this._photo.height /
+    //
+    var viewAspect = viewportWidth / viewportHeight,
+        photoAspect = this._photo.width / this._photo.height;
+    mat4.scale(mvMatrix, mvMatrix, [photoAspect / viewAspect, 1.0, 1.0]);
+
+    mat4.translate(mvMatrix, mvMatrix, [-0.5, 0.5 * (this._photo.height /
       this._photo.width), 0]);
     mat4.scale(mvMatrix, mvMatrix, [1.0 / this._photo.width, 1.0 / this._photo
       .width, 1
@@ -114,7 +129,7 @@ define([
   Controller.prototype.drawTile = function (gl, tile) {
 
     var geometry = this._tileGeometry.getGeometry(tile);
-    var texture = this._tileTextures.getTextures(tile);
+    var texture = this._tileTextures.getTexture(tile);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertexBuffer);
     gl.vertexAttribPointer(this._shaderProgram.vPositionAttribute,
@@ -127,6 +142,9 @@ define([
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(this._shaderProgram.samplerUniform, 0);
+
+    var gamma = parseFloat(this._scope.gamma);
+    gl.uniform4fv(this._shaderProgram.gammaUniform, [gamma, gamma, gamma, 1.0]);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0,
       geometry.vertexBuffer.length / geometry.vertexBuffer.itemSize);

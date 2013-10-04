@@ -1,0 +1,12 @@
+%module dngsdk
+%{
+#include "../../../../../dng_sdk/dng_sdk_1_3/source/dng_host.h"
+%}
+
+%name(host) class dng_host {
+public:
+  dng_host();
+  ~dng_host();
+
+  void SetPreferredSize(uint32);
+};

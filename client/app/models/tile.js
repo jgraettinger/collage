@@ -40,7 +40,7 @@ define([], function () {
   };
 
   Tile.prototype.key = function () {
-    return 'tile/' + this.level + '/' + this.wIndex + '/' + this.hIndex;
+    return this.photo.id + '-' + this.level + '-' + this.wIndex + '-' + this.hIndex;
   };
 
   // Methods computing the tile's begin and end offsets.

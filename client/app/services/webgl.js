@@ -4,19 +4,31 @@
 define([
   'angular',
   'underscore',
-], function (angular, _) {
+  'webgl-debug',
+], function (angular, _, WebglDebug) {
 
   var Factory = function ($window) {
 
     /* Constructor */
+    function throwOnError(err, funcName, args) {
+      throw WebglDebug.glEnumToString(err) + " was cased by call to: " + funcName;
+    };
 
     function Webgl() {
       this._canvas = angular.element('<canvas>');
+      /*
+      this._gl = WebglDebug.makeDebugContext(
+        this._canvas[0].getContext('webgl'), throwOnError);
+      */
       this._gl = this._canvas[0].getContext('webgl');
+      console.log(this._gl.getSupportedExtensions());
       if (!this._gl) {
         throw new Error('Failed to initialize a WebGL context');
       }
     }
+    Webgl.prototype.getGl = function() {
+      return this._gl;
+    };
     Webgl.prototype.buildFragmentShader = function (sourceCode) {
       return this._buildShader(this._gl.FRAGMENT_SHADER, sourceCode);
     };
@@ -98,8 +110,9 @@ define([
       texture.image.onload = function () {
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
-        // ???
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
 
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
           gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
@@ -132,15 +145,17 @@ define([
       this._gl.enable(this._gl.DEPTH_TEST);
       this._gl.clearColor(0, 0, 0, 1);
       this._gl.viewport(0, 0, canvas.width, canvas.height);
-      this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+      //this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
       sceneGraph.draw(this._gl, canvas.width, canvas.height);
-
+      this.checkError();
+    };
+    Webgl.prototype.checkError = function () {
       var err = this._gl.getError();
       if (err !== this._gl.NO_ERROR) {
-        throw new Error('GL Error in draw(): ' + err);
+        throw new Error('GL Error: ' + err);
       }
-    };
+    }
 
     var instance = new Webgl();
     angular.element($window).bind('resize',

@@ -33,15 +33,18 @@ define([
 
       this._supported = gl.getSupportedExtensions();
 
+      /*
       this._halfFloatExt = gl.getExtension('OES_texture_half_float');
       this._halfFloatLinearExt = gl.getExtension(
         'OES_texture_half_float_linear');
+      */
 
       this._floatExt = gl.getExtension('OES_texture_float');
       this._floatLinearExt = gl.getExtension(
         'OES_texture_float_linear');
     };
 
+    // TODO(johng): Try re-using textures here.
     CompositeTextureBuilder.prototype.build = function (
         width, height, highBitsTexture, lowBitsTexture) {
 
@@ -93,7 +96,7 @@ define([
 
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, lowBitsTexture);
-      gl.uniform1i(this._program.uSamplerLow, 0);
+      gl.uniform1i(this._program.uSamplerLow, 1);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0,
         this._vertexBuffer.length / this._vertexBuffer.itemSize);

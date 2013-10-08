@@ -76,7 +76,14 @@ define([], function () {
       // Use null as a placeholder indicating the texture is loading.
       this._textureCache[tile.key()] = null;
 
-      var url = 'images/tiles/' + tile.key() + '.png';
+      var url = 'images/tiles/' + tile.key(),
+          p1 = this._loadImage(url + '-high.png'),
+          p2 = this._loadImage(url + '-low.png');
+
+      $q.all([p1, p2]).then(_.bind(function (images) {
+        var texture = this._buildCompositeTexture(images[0], images[1]);
+        this._textureCache[tile.key()] = texture;
+      }, this));
 
       /*
       this._loadImage(url).then(_.bind(function (image) {
@@ -85,11 +92,6 @@ define([], function () {
       }, this));
       */
 
-      this._loadImage(url).then(_.bind(function (image) {
-        console.log("image callback");
-        var texture = this._buildCompositeTexture(image, image);
-        this._textureCache[tile.key()] = texture;
-      }, this));
       /*
         .then(function (texture) {
         this._textureCache[tile.key()] = texture;

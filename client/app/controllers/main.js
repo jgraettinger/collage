@@ -20,10 +20,11 @@ define([
     webgl) {
     this._scope = $scope;
 
-    this._scope.lodBias = 0;
-    this._scope.zDistance = '-0.35';
+    this._scope.lodBias = '0';
+    this._scope.zDistance = '-0.75';
     this._scope.activeTiles = 0;
-    this._scope.gamma = '1.0';
+    this._scope.gamma = '0.4545';
+    //this._scope.gamma = '0.05';
 
     this._scope.awesomeThings = [
       'HTML5 Boilerplate',
@@ -72,7 +73,7 @@ define([
     ///////////////////////////////////////////////////////////////////////////
     //
     this._photo = {
-      id: "foobar",
+      id: "foozing",
       width: 5216,
       height: 3472,
     };

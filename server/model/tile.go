@@ -14,7 +14,7 @@ const (
 	TileSize  uint = 1 << TileShift
 )
 
-func NewRootTile(photo *Photo) Tile {
+func RootTile(photo *Photo) Tile {
 	var level uint
 	if photo.Width > photo.Height {
 		level = maximumLevel(photo.Width)

@@ -24,42 +24,6 @@ func init() {
 	C.initialize_sdk()
 }
 
-type Exif struct {
-	DateTime          string
-	DateTimeDigitized string
-	DateTimeOriginal  string
-	ImageUniqueID     []byte
-	Make              string
-	Model             string
-	PixelXDimension   uint32
-	PixelYDimension   uint32
-
-	/*
-		type Fractional struct {
-			Numerator int
-			Denominator int
-		}
-		ExposureTime Fractional
-		FNumber Fractional
-		ShutterSpeedValue Fractional
-		ApertureValue Fractional
-		BrightnessValue Fractional
-		ExposureBiasValue Fractional
-		MaxApertureValue Fractional
-		FocalLength Franctional
-
-		BatteryLevelA string
-
-		ExposureProgram uint32
-		MeteringMode uint32
-		LightSource uint32
-		Flash uint32
-		FlashMask uint32
-		SensingMethod uint32
-		ColorSpace uint32
-	*/
-}
-
 type Ifd struct {
 	XResolution int
 	YResolution int
@@ -72,7 +36,7 @@ func Bar() {
 	defer C.free(unsafe.Pointer(cpath))
 	context := C.create_context(cpath)
 
-	var exif Exif
+	var exif model.Exif
 	C.extract_exif(context, unsafe.Pointer(&exif))
 	fmt.Printf("%#v\n", exif)
 
@@ -194,7 +158,7 @@ func loadExif(exifPtr unsafe.Pointer,
 	model *C.char,
 	pixelXDimension uint32,
 	pixelYDimension uint32) {
-	exif := (*Exif)(exifPtr)
+	exif := (*model.Exif)(exifPtr)
 
 	exif.DateTime = C.GoString(dateTime)
 	exif.DateTimeDigitized = C.GoString(dateTimeDigitized)

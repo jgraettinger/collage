@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/dademurphy/collage/server/dngsdk"
+	"github.com/dademurphy/collage/server/ingest/dngimport"
 	"fmt"
 )
 
 func main() {
-	host := dngsdk.NewHost()
-	fmt.Println(host)
+	dngimport.Bar()
+	fmt.Println("Done")
 }

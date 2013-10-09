@@ -38,8 +38,8 @@ define([
     if (this._memo[key]) {
       return this._memo[key];
     }
-    var v = vec4.fromValues((Tile.SIZE << level) * wIndex, -(Tile.SIZE <<
-        level) * hIndex, 0, 1);
+    var v = vec4.fromValues((Tile.SIZE << level) * wIndex,
+        -(Tile.SIZE << level) * hIndex, 0, 1);
 
     // Transform from pixel coordinates to clip coordinates.
     vec4.transformMat4(v, v, this.transform);

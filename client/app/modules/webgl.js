@@ -14,6 +14,5 @@ define([
   module.factory('tileTextures', TileTextures);
   module.factory('compositeTextureBuilder', CompositeTextureBuilder);
   module.directive('webglCanvas', WebglCanvas);
-  console.log("WEBGL module name: " + module.name);
   return module;
 });

@@ -23,6 +23,5 @@ define([
         redirectTo: '/'
       });
   });
-  console.log("collage module name: " + module.name);
   return module;
 });

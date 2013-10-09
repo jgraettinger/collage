@@ -38,43 +38,43 @@ define([
       // which quarters and centers the photo.
       mat4.identity(mvMatrix);
       mat4.scale(mvMatrix, mvMatrix, [0.5, 0.5, 1]);
-      mat4.translate(mvMatrix, mvMatrix, [-512, -384, -2]);
+      mat4.translate(mvMatrix, mvMatrix, [-512, 384, -2]);
       mat4.ortho(pMatrix, -512, 512, -384, 384, 1, 3);
 
       var culler = new TileCuller(mvMatrix, pMatrix, 1024, 768);
 
-      // Bottom left corner (equivalent at multiple levels).
+      // Upper left corner (equivalent at multiple levels).
       expect(culler.toScreen(rootTile.level, 0, 0)).toEqual(
-        vec4.fromValues(256, 192, 0, 1));
-      expect(culler.toScreen(rootTile.level - 1, 0, 0)).toEqual(
-        vec4.fromValues(256, 192, 0, 1));
-      expect(culler.toScreen(rootTile.level - 2, 0, 0)).toEqual(
-        vec4.fromValues(256, 192, 0, 1));
-      // Upper left corner
-      expect(culler.toScreen(rootTile.level - 2, 0, 3)).toEqual(
         vec4.fromValues(256, 576, 0, 1));
-      // Upper-right corner.
+      expect(culler.toScreen(rootTile.level - 1, 0, 0)).toEqual(
+        vec4.fromValues(256, 576, 0, 1));
+      expect(culler.toScreen(rootTile.level - 2, 0, 0)).toEqual(
+        vec4.fromValues(256, 576, 0, 1));
+      // Bottom left corner
+      expect(culler.toScreen(rootTile.level - 2, 0, 3)).toEqual(
+        vec4.fromValues(256, 192, 0, 1));
+      // Bottom right corner.
       expect(culler.toScreen(rootTile.level - 2, 4, 3)).toEqual(
-        vec4.fromValues(768, 576, 0, 1));
-      // Lower right corner (equivalent at multiple levels).
+        vec4.fromValues(768, 192, 0, 1));
+      // Upper right corner (equivalent at multiple levels).
       expect(culler.toScreen(rootTile.level - 2, 4, 0)).toEqual(
-        vec4.fromValues(768, 192, 0, 1));
+        vec4.fromValues(768, 576, 0, 1));
       expect(culler.toScreen(rootTile.level - 1, 2, 0)).toEqual(
-        vec4.fromValues(768, 192, 0, 1));
-      // Horizontal center, two-thirds of vertical.
-      expect(culler.toScreen(rootTile.level - 1, 1, 1)).toEqual(
-        vec4.fromValues(512, 448, 0, 1));
-      expect(culler.toScreen(rootTile.level - 2, 2, 2)).toEqual(
-        vec4.fromValues(512, 448, 0, 1));
+        vec4.fromValues(768, 576, 0, 1));
       // Horizontal center, one-third of vertical.
-      expect(culler.toScreen(rootTile.level - 2, 2, 1)).toEqual(
+      expect(culler.toScreen(rootTile.level - 1, 1, 1)).toEqual(
         vec4.fromValues(512, 320, 0, 1));
+      expect(culler.toScreen(rootTile.level - 2, 2, 2)).toEqual(
+        vec4.fromValues(512, 320, 0, 1));
+      // Horizontal center, two-thirds of vertical.
+      expect(culler.toScreen(rootTile.level - 2, 2, 1)).toEqual(
+        vec4.fromValues(512, 448, 0, 1));
 
       // Outside of the screen bounds (note that W is now zero).
       expect(culler.toScreen(rootTile.level - 1, 4, 1)).toEqual(
-        vec4.fromValues(1280, 448, 0, 0));
+        vec4.fromValues(1280, 320, 0, 0));
       expect(culler.toScreen(rootTile.level - 1, 1, 3)).toEqual(
-        vec4.fromValues(512, 960, 0, 0));
+        vec4.fromValues(512, -192, 0, 0));
     });
     it('enumerates appropriately-sized and viewable tiles', function () {
       var mvMatrix = mat4.create(),
@@ -87,7 +87,7 @@ define([
       // Set up a modelview and ortho projection which is slightly
       // more than a quarter of the centered the photo.
       mat4.identity(mvMatrix);
-      mat4.translate(mvMatrix, mvMatrix, [-1024, -1024, -2]);
+      mat4.translate(mvMatrix, mvMatrix, [-1024, 1024, -2]);
       mat4.ortho(pMatrix, -513, 513, -511, 511, 1, 3);
 
       var culler = new TileCuller(mvMatrix, pMatrix, 512, 384);

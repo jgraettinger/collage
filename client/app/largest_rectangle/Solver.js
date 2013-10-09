@@ -311,5 +311,18 @@ define([
       }
     }
   };
+  /* Finds the single best-fit solution amoung potential solutions,
+   * such that the solution is the largest of those which are fully
+   * within the model.
+   *
+   * @param {Model} model Model describing the polygon.
+   */
+  Solver.prototype.findBestFitSolution = function (model) {
+    this.findPotentialSolutions(model);
+    this.solutions.sort(function (a, b) {
+      return b.area - a.area;
+    });
+    return _.find(this.solutions, model.boundaryTest, model);
+  };
   return Solver;
 });

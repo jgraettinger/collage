@@ -21,7 +21,7 @@ define([
         this._canvas[0].getContext('webgl'), throwOnError);
       */
       this._gl = this._canvas[0].getContext('webgl');
-      console.log(this._gl.getSupportedExtensions());
+      //console.log(this._gl.getSupportedExtensions());
       if (!this._gl) {
         throw new Error('Failed to initialize a WebGL context');
       }
@@ -160,8 +160,6 @@ define([
     var instance = new Webgl();
     angular.element($window).bind('resize',
       _.bind(instance.possiblyResized, instance));
-
-    console.log('Webgl service constructed.');
     return instance;
   };
   Factory.$inject = ['$window'];

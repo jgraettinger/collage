@@ -18,7 +18,7 @@ define([
   Transform) {
 
   var DemoController = function ($scope) {
-    $scope.transform = new Transform().translate(0, 0, 3);
+    $scope.transform = new Transform();
 
     $scope.axis = 'x';
     $scope.pixelsToRadians = 500.0;

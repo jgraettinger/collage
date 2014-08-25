@@ -1,0 +1,38 @@
+Gauging interest: web-based photography workflows
+
+
+Hi Photogs,
+
+I've been thinking about a photography workflow application where the principal storage is in 'the cloud' (AWS S3/Glacier), and the catalog mangement and photo development environments are delivered via a web browser. I have a partialy fleshed out concept, and a sense of the benefits and pitfalls which I'll outline below, but at this point I'd definitely appreciate initial feedback from the community.
+
+How it works:
+
+* An import tool run on the user's machine scans new raw/jpeg assets and presents previews. The user picks and tags shots to keep, which are then uploaded as-is to S3.
+
+* After upload, photos are available in a browser-based catalog manager. The user can browse previews, further pick, tag, and rate photos, search the collection, and enter into the photo development environment.
+
+* The non-destructive photo developer allows the user to crop, adjust perspective and correct lens distortions, adjust curves, etc. Edits are applied instantly to the preview, within the browser.
+
+(It should be no surprise that Lightroom's feature set is a model for the catalog and development environments.)
+
+* An browser-based export environment (possibly baked into the catalog environment), which minimally supports downloading raw assets and renders of developed photos.
+
+
+Advantages:
+
+
+Seamless, redundant archival of raw assets. The principal storage of assets would be Amazon S3, with Amazon Glacier used for long-term archival. Under the hood, AWS S3/Glacier store redundant copies at multiple physical locations. As these are *your* photos, it would be easy to integrate and use your own AWS account for storage should you chose.
+
+Cross-device and collaborative editing. The catalog and development environments can be accessed and shared across any computer with a modern web browser.
+
+Greatly reduced hardware requirements. As most of the heavyweight image processing is happening on remote servers, relatively modest computers should provide snappy performance. WebGL and fragment shaders are used to accelerate the 
+
+
+ main catalog and editing environment is delivered through the brow
+
+ digital negatives/initial JPEG assets are first uploaded to a service,
+ and _then_ 
+  
+	 * Digital negatives or initial JPEG assets are first uploaded
+	  * The photo picking, cataloging, and non-destructive editing environment is delivered through the browser.
+

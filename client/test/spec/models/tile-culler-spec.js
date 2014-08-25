@@ -18,13 +18,20 @@ define([
 
       expect(box.test([9, 35])).toBeFalsy();
       expect(box.test([10, 35])).toBeTruthy();
-      expect(box.test([20, 35])).toBeFalsy();
+      expect(box.test([20, 35])).toBeTruthy();
+      expect(box.test([21, 35])).toBeFalsy();
       expect(box.test([19, 35])).toBeTruthy();
 
       expect(box.test([15, 29])).toBeFalsy();
       expect(box.test([15, 30])).toBeTruthy();
-      expect(box.test([15, 40])).toBeFalsy();
+      expect(box.test([15, 40])).toBeTruthy();
+      expect(box.test([15, 41])).toBeFalsy();
       expect(box.test([15, 39])).toBeTruthy();
+
+      expect(box.test([10, 30])).toBeTruthy();
+      expect(box.test([10, 40])).toBeTruthy();
+      expect(box.test([20, 30])).toBeTruthy();
+      expect(box.test([20, 40])).toBeTruthy();
     });
     it('projects tile coordinates to screen coordinates', function () {
       var mvMatrix = mat4.create(),

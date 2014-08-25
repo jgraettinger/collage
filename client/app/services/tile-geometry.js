@@ -2,7 +2,7 @@
 'use strict';
 
 define([
-  'models/tile',
+  'collage/models/tile',
 ], function (Tile) {
   var Factory = function (webgl) {
 

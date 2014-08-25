@@ -1,27 +1,22 @@
 'use strict';
 
 define([], function () {
-  function DirectiveController($scope, $element, $attrs, $window, webgl) {
-    console.log('called directive controller');
-    // Update class of injected canvas element.
-    /*
-    $attrs.$observe('canvasClass', function (value) {
-      webgl.canvas.attr('class', $attrs.canvasClass);
-      console.log('canvasClass has changed value to ' + value);
-      webgl.possiblyResized();
-    });
-    */
+  function DirectiveController($scope, $element, $attrs,
+      mainContextPointer, webgl) {
+
     $element.prepend(webgl._canvas);
+
+    $scope.pointer = mainContextPointer;
+    mainContextPointer.setOwningScope($scope);
   }
   DirectiveController.$inject = ['$scope', '$element', '$attrs',
-    '$window', 'webgl'
-  ];
+    'mainContextPointer', 'webgl'];
 
   return function () {
     return {
       restrict: 'A',
       replace: false,
-      scope: {},
+      scope: false,
       controller: DirectiveController,
     };
   };

@@ -16,8 +16,8 @@ define([
     this.yMax = yMax;
   };
   BoundingBox.prototype.test = function (point) {
-    if (point[0] >= this.xMin && point[0] < this.xMax &&
-      point[1] >= this.yMin && point[1] < this.yMax) {
+    if (point[0] >= this.xMin && point[0] <= this.xMax &&
+      point[1] >= this.yMin && point[1] <= this.yMax) {
       return true;
     }
     return false;

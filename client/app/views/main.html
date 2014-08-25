@@ -8,8 +8,17 @@
   </ul>
   <p>installed.</p>
   <h3>Enjoy coding! - Yeoman</h3>
-  <input type="range" ng-model="lodBias" min="-2", max="1" step="0.05"></input>{{lodBias}}<br>
+  <input type="range" ng-model="lodBias" min="-2", max="0" step="0.05"></input>{{lodBias}}<br>
   <input type="range" ng-model="zDistance" min="-10", max="0" step="0.001"></input>{{zDistance}}<br>
   <input type="range" ng-model="gamma" min="0", max="1" step="0.001"></input>{{gamma}}<br>
   Active tiles: {{activeTiles}}<br>
+  <br>
+  {{pointer}}
+  <br>
+  <form>
+    <input type="radio" ng-model="axis" value="x">X-Axis
+    <input type="radio" ng-model="axis" value="y">Y-Axis
+    <input type="radio" ng-model="axis" value="z">Z-Axis
+    <input type="button" ng-click="rotate90()" value="Rotate 90">
+  </form>
 </div>

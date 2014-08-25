@@ -1,6 +1,6 @@
 'use strict';
 
-define(['gl-matrix', ], function (glMatrix) {
+define(['gl-matrix'], function (glMatrix) {
   var vec3 = glMatrix.vec3,
     vec4 = glMatrix.vec4,
     mat4 = glMatrix.mat4,

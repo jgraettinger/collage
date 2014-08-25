@@ -5,9 +5,10 @@ define([
   'angular',
   'underscore',
   'webgl-debug',
-], function (angular, _, WebglDebug) {
+  'collage/models/pointer',
+], function (angular, _, WebglDebug, Pointer) {
 
-  var Factory = function ($window) {
+  var Factory = function ($window, $rootScope, mainContextPointer) {
 
     /* Constructor */
     function throwOnError(err, funcName, args) {
@@ -16,6 +17,8 @@ define([
 
     function Webgl() {
       this._canvas = angular.element('<canvas>');
+      mainContextPointer.bindTo(this._canvas, $rootScope);
+
       /*
       this._gl = WebglDebug.makeDebugContext(
         this._canvas[0].getContext('webgl'), throwOnError);
@@ -162,6 +165,6 @@ define([
       _.bind(instance.possiblyResized, instance));
     return instance;
   };
-  Factory.$inject = ['$window'];
+  Factory.$inject = ['$window', '$rootScope', 'mainContextPointer'];
   return Factory;
 });
